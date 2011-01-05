@@ -1,22 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package at.fsinf.restauth.errors;
 
 import at.fsinf.restauth.common.RestAuthResponse;
 import org.apache.http.HttpStatus;
 
 /**
+ * Thrown when the RestAuth server suffers from an internal server error.
  *
- * @author mati
+ * @author Mathias Ertl
  */
 public class InternalServerError extends RestAuthInternalError {
-    /**
-     *
-     * @param response
-     */
     public InternalServerError( RestAuthResponse response ) {
         super( response, HttpStatus.SC_INTERNAL_SERVER_ERROR );
     }
