@@ -1,21 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package at.fsinf.restauth.errors;
 
 import at.fsinf.restauth.common.RestAuthResponse;
 
 /**
+ * Thrown when a attempting to create a user that already exists.
  *
- * @author mati
+ * @author Mathias Ertl
  */
 public class UserExists extends ResourceExists {
-    /**
-     *
-     * @param response
-     */
     public UserExists( RestAuthResponse response ) {
         super(response);
     }

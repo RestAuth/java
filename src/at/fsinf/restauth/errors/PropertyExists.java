@@ -1,21 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package at.fsinf.restauth.errors;
 
 import at.fsinf.restauth.common.RestAuthResponse;
 
 /**
+ * Thrown when trying to create a property that already exists.
  *
- * @author mati
+ * @author Mathias Ertl
  */
 public class PropertyExists extends ResourceExists {
-    /**
-     *
-     * @param response
-     */
     public PropertyExists( RestAuthResponse response ) {
         super(response);
     }

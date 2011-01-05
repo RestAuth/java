@@ -4,15 +4,11 @@ import at.fsinf.restauth.common.RestAuthResponse;
 import org.apache.http.HttpStatus;
 
 /**
- * 
+ * Base class for errors when trying to create a resource that already exists.
  *
  * @author Mathias Ertl
  */
-public class ResourceExists extends RestAuthException {
-    /**
-     *
-     * @param response
-     */
+public abstract class ResourceExists extends RestAuthException {
     public ResourceExists(RestAuthResponse response) {
         super( response, HttpStatus.SC_CONFLICT );
     }
