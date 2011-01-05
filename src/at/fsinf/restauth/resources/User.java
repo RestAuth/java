@@ -55,9 +55,10 @@ public class User extends Resource {
      */
     public static User get( RestAuthConnection connection, String name )
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        String path = RestAuthConnection.formatPath( User.prefix + "/?/", name );
+        String path = String.format( "%s%s/", User.prefix, name );
         RestAuthResponse response = connection.get( path );
         int respCode = response.getStatusCode();
+        
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
             return new User( connection, name );
         } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
@@ -158,7 +159,9 @@ public class User extends Resource {
             throws Unauthorized, ResourceNotFound, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", newPassword );
-        RestAuthResponse response = this.put( "/?/", params, this.name );
+
+        String path = String.format( "%s/", this.name );
+        RestAuthResponse response = this.put( path, params );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -193,7 +196,8 @@ public class User extends Resource {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", password );
 
-        RestAuthResponse response = this.post( "/?/", params, this.name );
+        String path = String.format( "%s/", this.name );
+        RestAuthResponse response = this.post( path, params );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -222,7 +226,8 @@ public class User extends Resource {
      */
     public Map<String, String> getProperties()
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        RestAuthResponse response = this.get( "/?/props/", this.name );
+        String path = String.format( "%s/props/", this.name );
+        RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -253,13 +258,14 @@ public class User extends Resource {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public void createProperty( String name, String value )
+    public void createProperty( String propName, String value )
             throws PropertyExists, Unauthorized, ResourceNotFound, UnknownStatus, InternalServerError, NotAcceptable, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put( "prop", name );
+        params.put( "prop", propName );
         params.put( "value", value );
 
-        RestAuthResponse response = this.post("/?/props/", params, this.name);
+        String path = String.format( "%s/props/", this.name );
+        RestAuthResponse response = this.post( path, params );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_CREATED ) {
@@ -291,12 +297,13 @@ public class User extends Resource {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public String setProperty( String name, String value )
+    public String setProperty( String propName, String value )
             throws Unauthorized, ResourceNotFound, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "value", value );
 
-        RestAuthResponse response = this.put( "/?/props/?/", params, this.name, name );
+        String path = String.format( "%s/props/%s/", this.name, propName );
+        RestAuthResponse response = this.put( path, params );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -327,9 +334,10 @@ public class User extends Resource {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public String getProperty( String name )
+    public String getProperty( String propName )
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        RestAuthResponse response = this.get( "/?/props/?/", this.name, name );
+        String path = String.format( "%s/props/%s/", this.name, propName );
+        RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -357,9 +365,10 @@ public class User extends Resource {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public void removeProperty( String name )
+    public void removeProperty( String propName )
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        RestAuthResponse response = this.delete( "/?/props/?/", this.name, name );
+        String path = String.format( "%s/props/%s/", this.name, propName );
+        RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -391,7 +400,8 @@ public class User extends Resource {
      */
     public void remove()
             throws ResourceNotFound, Unauthorized, NotAcceptable, InternalServerError, UnknownStatus, RequestFailed {
-        RestAuthResponse response = this.delete( "/?/", this.name );
+        String path = String.format( "%s/", this.name );
+        RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -404,38 +414,33 @@ public class User extends Resource {
     }
 
     @Override
-    protected RestAuthResponse get(String path, String... args)
+    protected RestAuthResponse get( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( User.prefix + path, args);
-        return this.conn.get( path );
+        return this.conn.get( User.prefix + path );
     }
 
     @Override
-    protected RestAuthResponse get(String path, Map<String, String> params, String... args )
+    protected RestAuthResponse get( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( User.prefix + path, args);
-        return this.conn.get( path, params );
+        return this.conn.get( User.prefix + path, params );
     }
 
     @Override
-    protected RestAuthResponse post(String path, Map<String, String> params, String... args)
+    protected RestAuthResponse post(String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( User.prefix + path, args);
         return this.conn.post( path, params );
     }
 
     @Override
-    protected RestAuthResponse put(String path, Map<String, String> params, String... args)
+    protected RestAuthResponse put(String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( User.prefix + path, args);
-        return this.conn.put( path, params );
+        return this.conn.put( User.prefix + path, params );
     }
 
 
     @Override
-    public RestAuthResponse delete( String path, String... args )
+    public RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( User.prefix + path, args);
-        return this.conn.delete( path );
+        return this.conn.delete( User.prefix + path );
     }
 }

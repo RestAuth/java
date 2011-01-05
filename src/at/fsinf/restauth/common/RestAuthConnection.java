@@ -147,9 +147,12 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public RestAuthResponse execute( HttpRequestBase request, String path, String query )
             throws IOException {
-        RestAuthResponseHandler responseHandler =
-                new RestAuthResponseHandler();
-        URI reqURI = request.getURI();
+        // sanitize path:
+        if ( ! path.endsWith( "/" ) ) path += "/";
+        if ( ! path.startsWith( "/" ) ) path = "/" + path;
+        path = path.replaceAll( "//", "/");
+
+        // construct URI:
         try {
             URI fullURI = new URI(this.host.getScheme(), null,
                     this.host.getHost(), this.host.getPort(), path, query, null);
@@ -157,8 +160,9 @@ public class RestAuthConnection extends DefaultHttpClient {
         } catch (URISyntaxException ex) {
             throw new IllegalArgumentException( ex );
         }
-        
-        return this.execute( request, responseHandler );
+
+        // execute request:
+        return this.execute( request, new RestAuthResponseHandler() );
     }
 
     /**
@@ -343,24 +347,6 @@ public class RestAuthConnection extends DefaultHttpClient {
     public RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         return this.send( new HttpDelete(), path );
-    }
-
-    public static String formatPath( String path, String... args ) {
-        // check that number of "_" equals number of args:
-        if ( path.length() - path.replaceAll("\\?", "").length() != args.length ) {
-            throw new RuntimeException( "invalid number of format specifiers" );
-        }
-
-        for ( int i = 0; i < args.length; i++ ) {
-//            try {
-                //path = path.replaceFirst("\\?", URLEncoder.encode(args[i], "utf-8"));
-                path = path.replaceFirst("\\?", args[i]);
-//            } catch (UnsupportedEncodingException ex) {} // never thrown
-        }
-
-        if ( ! path.endsWith( "/" ) ) path = path + "/";
-        if ( ! path.startsWith( "/" ) ) path = "/" + path;
-        return path.replaceAll( "//", "/");
     }
 
     /**

@@ -66,7 +66,7 @@ public class Group extends Resource {
 
     public static Group get( RestAuthConnection connection, String name )
             throws UnknownStatus, NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        String path = RestAuthConnection.formatPath( Group.prefix + "/?/", name );
+        String path = String.format( "%s%s/", Group.prefix, name );
         RestAuthResponse response = connection.get( path );
         int respCode = response.getStatusCode();
 
@@ -79,7 +79,8 @@ public class Group extends Resource {
     
     public List<User> getUsers() 
             throws ResourceNotFound, UnknownStatus, NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        RestAuthResponse response = this.get( "/?/users/", this.name );
+        String path = String.format( "%s/users/", this.name );
+        RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -108,7 +109,8 @@ public class Group extends Resource {
         Map<String, String> params = new HashMap<String, String>();
         params.put( "user", username );
 
-        RestAuthResponse response = this.post( "/?/users/", params, this.name );
+        String path = String.format( "%s/users/", this.name );
+        RestAuthResponse response = this.post( path, params );
         int respCode = response.getStatusCode();
 
         if( respCode == HttpStatus.SC_CREATED ) {
@@ -127,7 +129,8 @@ public class Group extends Resource {
 
     public boolean isMember( String username ) 
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
-        RestAuthResponse response = this.get( "?/users/?/", this.name, username );
+        String path = String.format( "%s/users/%s/", this.name, username );
+        RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -151,7 +154,8 @@ public class Group extends Resource {
 
     public void removeUser( String username ) 
             throws NotAcceptable, Unauthorized, InternalServerError, ResourceNotFound, UnknownStatus, RequestFailed {
-        RestAuthResponse response = this.delete( "/?/users/?/", this.name, username );
+        String path = String.format( "%s/users/%s/", this.name, username );
+        RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -165,7 +169,8 @@ public class Group extends Resource {
 
     public List<Group> getGroups() 
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
-        RestAuthResponse response = this.get( "/groups/" );
+        String path = String.format( "%s/groups/", this.name );
+        RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -194,7 +199,8 @@ public class Group extends Resource {
         Map<String, String> params = new HashMap<String, String>();
         params.put( "user", groupname );
 
-        RestAuthResponse response = this.post( "/groups/", params );
+        String path = String.format( "%s/groups/", this.name );
+        RestAuthResponse response = this.post( path, params );
         int respCode = response.getStatusCode();
 
         if( respCode == HttpStatus.SC_CREATED ) {
@@ -213,7 +219,8 @@ public class Group extends Resource {
 
     public void removeGroup( String groupname ) 
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
-        RestAuthResponse response = this.delete( "/?/groups/?/", this.name, groupname );
+        String path = String.format( "%s/groups/%s/", this.name, groupname );
+        RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -227,7 +234,8 @@ public class Group extends Resource {
 
     public void remove()
             throws ResourceNotFound, UnknownStatus, NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        RestAuthResponse response = this.delete( "/?/", this.name );
+        String path = String.format( "%s/", this.name );
+        RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -252,37 +260,32 @@ public class Group extends Resource {
     }
     
     @Override
-    protected RestAuthResponse get(String path, String... args) 
+    protected RestAuthResponse get( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( Group.prefix + path, args);
-        return this.conn.get( path );
+        return this.conn.get( Group.prefix + path );
     }
 
     @Override
-    protected RestAuthResponse get(String path, Map<String, String> params, String... args)
+    protected RestAuthResponse get( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( Group.prefix + path, args);
-        return this.conn.get( path, params );
+        return this.conn.get( Group.prefix + path, params );
     }
 
     @Override
-    protected RestAuthResponse post(String path, Map<String, String> params, String... args) 
+    protected RestAuthResponse post( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( Group.prefix + path, args);
-        return this.conn.get( path, params );
+        return this.conn.get( Group.prefix + path, params );
     }
 
     @Override
-    protected RestAuthResponse put(String path, Map<String, String> params, String... args) 
+    protected RestAuthResponse put( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( Group.prefix + path, args);
-        return this.conn.get( path, params );
+        return this.conn.get( Group.prefix + path, params );
     }
 
     @Override
-    protected RestAuthResponse delete(String path, String... args) 
+    protected RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        path = RestAuthConnection.formatPath( Group.prefix + path, args);
-        return this.conn.get( path );
+        return this.conn.get( Group.prefix + path );
     }
 }

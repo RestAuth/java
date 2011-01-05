@@ -24,19 +24,19 @@ public abstract class Resource {
     }
 
     protected abstract RestAuthResponse 
-            get( String path, String... args )
+            get( String path )
             throws RestAuthException;
     protected abstract RestAuthResponse 
-            get( String path, Map<String, String> params, String... args )
+            get( String path, Map<String, String> params  )
             throws RestAuthException;
     protected abstract RestAuthResponse 
-            post( String path, Map<String, String> params, String... args )
+            post( String path, Map<String, String> params )
             throws RestAuthException;
     protected abstract RestAuthResponse 
-            put( String path, Map<String, String> params, String... args )
+            put( String path, Map<String, String> params )
             throws RestAuthException;
     protected abstract RestAuthResponse
-            delete( String path, String... args )
+            delete( String path )
             throws RestAuthException;
 
     @Override
