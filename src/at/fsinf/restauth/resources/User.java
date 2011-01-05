@@ -428,7 +428,7 @@ public class User extends Resource {
     @Override
     protected RestAuthResponse post(String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        return this.conn.post( path, params );
+        return this.conn.post( User.prefix + path, params );
     }
 
     @Override
