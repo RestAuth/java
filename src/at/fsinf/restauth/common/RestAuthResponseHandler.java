@@ -1,19 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package at.fsinf.restauth.common;
 
-import at.fsinf.restauth.common.RestAuthResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -21,18 +12,22 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.util.EntityUtils;
 
 /**
+ * This class is responsible for wrapping an HttpResponse into a {@link
+ * RestAuthResponse}.
  *
- * @author mati
+ * @author Mathias Ertl
  */
 public class RestAuthResponseHandler implements ResponseHandler<RestAuthResponse> {
 
     /**
+     * Wrap a HttpResponse into a {@link RestAuthResponse}.
      *
-     * @param hr
-     * @return
+     * @param hr The HTTP response received from a request.
+     * @return The response wrapped in a convenient RestAuthResponse instance.
      * @throws ClientProtocolException
      * @throws IOException
      */
+    @Override
     public RestAuthResponse handleResponse(HttpResponse hr)
             throws ClientProtocolException, IOException {
 
