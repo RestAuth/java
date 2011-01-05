@@ -371,6 +371,10 @@ public class User extends Resource {
         }
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     /**
      * Remove this user completely.
      *

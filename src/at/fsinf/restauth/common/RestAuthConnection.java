@@ -12,19 +12,21 @@ import at.fsinf.restauth.errors.Unauthorized;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -41,7 +43,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public ContentHandler handler;
 
-    private HttpHost host;
+    private URI host;
     private String authHeader;
 
     /**
@@ -56,8 +58,8 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      not contain a valid URL.
      */
     public RestAuthConnection( String host, String user, String passwd )
-            throws MalformedURLException {
-        this( new URL(host), user, passwd, new JsonHandler() );
+            throws URISyntaxException {
+        this( new URI(host), user, passwd, new JsonHandler() );
     }
     /**
      * Creates a new connection to a RestAuth service. This method uses the
@@ -68,7 +70,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param user The user used to authenticate against the RestAuth server.
      * @param passwd The password used to authenticate against the RestAuth server.
      */
-    public RestAuthConnection( URL host, String user, String passwd ) {
+    public RestAuthConnection( URI host, String user, String passwd ) {
         this( host, user, passwd, new JsonHandler() );
     }
     
@@ -84,8 +86,8 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      not contain a valid URL.
      */
     public RestAuthConnection( String host, String user, String passwd, ContentHandler handler )
-            throws MalformedURLException {
-        this( new URL( host ), user, passwd, handler );
+            throws URISyntaxException {
+        this( new URI( host ), user, passwd, handler );
     }
 
     /**
@@ -97,11 +99,10 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param passwd The password used to authenticate against the RestAuth server.
      * @param handler The content handler to use.
      */
-    public RestAuthConnection( URL host, String user, String passwd, ContentHandler handler ) {
+    public RestAuthConnection( URI host, String user, String passwd, ContentHandler handler ) {
         this.handler = handler;
         this.setCredentials(user, passwd);
-        this.host = new HttpHost( 
-                host.getHost(), host.getPort(), host.getProtocol() );
+        this.host = host;
     }
 
     /**
@@ -144,10 +145,20 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @return The response returned by the RestAuth server.
      * @throws IOException When the connection to the RestAuth server fails.
      */
-    public RestAuthResponse execute( HttpRequest request ) throws IOException {
+    public RestAuthResponse execute( HttpRequestBase request, String path, String query )
+            throws IOException {
         RestAuthResponseHandler responseHandler =
                 new RestAuthResponseHandler();
-        return this.execute( this.host, request, responseHandler );
+        URI reqURI = request.getURI();
+        try {
+            URI fullURI = new URI(this.host.getScheme(), null,
+                    this.host.getHost(), this.host.getPort(), path, query, null);
+            request.setURI( fullURI );
+        } catch (URISyntaxException ex) {
+            throw new IllegalArgumentException( ex );
+        }
+        
+        return this.execute( request, responseHandler );
     }
 
     /**
@@ -167,14 +178,20 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public RestAuthResponse send(HttpRequest request) throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+    public RestAuthResponse send(HttpRequestBase request, String path )
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+        return this.send( request, path, null );
+    }
+    
+    public RestAuthResponse send(HttpRequestBase request, String path, String query )
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         request.addHeader( "Accept", this.handler.getMimeType() );
         request.addHeader( "Authorization", "Basic " + this.authHeader );
 
 
         RestAuthResponse response;
         try {
-            response = this.execute(request);
+            response = this.execute(request, path, query );
         } catch (IOException ex) {
             throw new RequestFailed( request, ex );
         }
@@ -207,7 +224,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public RestAuthResponse get( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        return this.get( path, new HashMap<String, String>() );
+        return this.send( new HttpGet(), path );
     }
 
     /**
@@ -232,11 +249,12 @@ public class RestAuthConnection extends DefaultHttpClient {
         Iterator<String> iter = keys.iterator();
         while (iter.hasNext()) {
             String key = iter.next();
-            try {
-                queryString += URLEncoder.encode(key, "utf-8").replace("+", "%20") + "=" + URLEncoder.encode(params.get(key), "utf-8").replace("+", "%20");
-            } catch (UnsupportedEncodingException ex) {
-                throw new RequestFailed( ex );
-            }
+//            try {
+//                queryString += URLEncoder.encode(key, "utf-8").replace("+", "%20") + "=" + URLEncoder.encode(params.get(key), "utf-8").replace("+", "%20");
+//            } catch (UnsupportedEncodingException ex) {
+//                throw new RequestFailed( ex );
+//            }
+            queryString += key + "=" + params.get(key);
             
             if (iter.hasNext()) {
                 queryString += "&";
@@ -245,7 +263,7 @@ public class RestAuthConnection extends DefaultHttpClient {
             }
         }
 
-        return this.send( new HttpGet( path + queryString ) );
+        return this.send( new HttpGet(), path, queryString );
     }
 
     /**
@@ -267,7 +285,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public RestAuthResponse post( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        HttpPost method = new HttpPost( path );
+        HttpPost method = new HttpPost();
         String body = this.handler.marshal_dictionary( params );
         try {
             method.setEntity(new StringEntity(body));
@@ -276,7 +294,7 @@ public class RestAuthConnection extends DefaultHttpClient {
         }
         method.addHeader( "Content-Type", this.handler.getMimeType() );
 
-        return this.send( method );
+        return this.send( method, path );
     }
 
     /**
@@ -297,7 +315,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public RestAuthResponse put( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        HttpPut method = new HttpPut( path );
+        HttpPut method = new HttpPut();
         String body = this.handler.marshal_dictionary( params );
         try {
             method.setEntity(new StringEntity(body));
@@ -306,7 +324,7 @@ public class RestAuthConnection extends DefaultHttpClient {
         }
         method.addHeader( "Content-Type", this.handler.getMimeType() );
 
-        return this.send( method );
+        return this.send( method, path );
     }
 
     /**
@@ -324,7 +342,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        return this.send( new HttpDelete( path ) );
+        return this.send( new HttpDelete(), path );
     }
 
     public static String formatPath( String path, String... args ) {
@@ -334,9 +352,10 @@ public class RestAuthConnection extends DefaultHttpClient {
         }
 
         for ( int i = 0; i < args.length; i++ ) {
-            try {
-                path = path.replaceFirst("\\?", URLEncoder.encode(args[i], "utf-8"));
-            } catch (UnsupportedEncodingException ex) {} // never thrown
+//            try {
+                //path = path.replaceFirst("\\?", URLEncoder.encode(args[i], "utf-8"));
+                path = path.replaceFirst("\\?", args[i]);
+//            } catch (UnsupportedEncodingException ex) {} // never thrown
         }
 
         if ( ! path.endsWith( "/" ) ) path = path + "/";
