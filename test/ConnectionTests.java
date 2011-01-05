@@ -10,6 +10,7 @@ import at.fsinf.restauth.errors.NotAcceptable;
 import at.fsinf.restauth.errors.Unauthorized;
 import at.fsinf.restauth.errors.UnknownStatus;
 import at.fsinf.restauth.resources.User;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.HashMap;
 import at.fsinf.restauth.common.RestAuthConnection;
@@ -29,7 +30,7 @@ import static org.junit.Assert.*;
 public class ConnectionTests {
     public RestAuthConnection conn;
 
-    public ConnectionTests() throws MalformedURLException {
+    public ConnectionTests() throws MalformedURLException, URISyntaxException {
         this.conn = new RestAuthConnection(
                 "http://localhost:8000", "vowi", "vowi" );
     }
