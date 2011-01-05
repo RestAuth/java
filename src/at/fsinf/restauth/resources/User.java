@@ -19,10 +19,8 @@ import org.apache.http.HttpStatus;
  * 
  * @author Mathias Ertl
  */
-public class User {
+public class User extends Resource {
     private static String prefix = "/users/";
-    private RestAuthConnection conn;
-    private String name;
 
     /**
      * Simple constructor.
@@ -35,8 +33,7 @@ public class User {
      * @param name The name of the user.
      */
     public User( RestAuthConnection connection, String name ) {
-        this.conn = connection;
-        this.name = name;
+        super( connection, name );
     }
 
     /**
@@ -58,7 +55,8 @@ public class User {
      */
     public static User get( RestAuthConnection connection, String name )
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        RestAuthResponse response = connection.get( User.prefix + name );
+        String path = RestAuthConnection.formatPath( User.prefix + "/?/", name );
+        RestAuthResponse response = connection.get( path );
         int respCode = response.getStatusCode();
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
             return new User( connection, name );
@@ -160,7 +158,7 @@ public class User {
             throws Unauthorized, ResourceNotFound, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", newPassword );
-        RestAuthResponse response = this.conn.put( User.prefix + this.name, params );
+        RestAuthResponse response = this.put( "/?/", params, this.name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -195,7 +193,7 @@ public class User {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", password );
 
-        RestAuthResponse response = this.conn.post( User.prefix + this.name, params );
+        RestAuthResponse response = this.post( "/?/", params, this.name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -224,8 +222,7 @@ public class User {
      */
     public Map<String, String> getProperties()
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        String url = "/users/" + this.name + "/props/";
-        RestAuthResponse response = this.conn.get( url );
+        RestAuthResponse response = this.get( "/?/props/", this.name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -258,12 +255,11 @@ public class User {
      */
     public void createProperty( String name, String value )
             throws PropertyExists, Unauthorized, ResourceNotFound, UnknownStatus, InternalServerError, NotAcceptable, RequestFailed {
-        String url = "/users/" + this.name + "/props/";
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "prop", name );
         params.put( "value", value );
 
-        RestAuthResponse response = this.conn.post(url, params);
+        RestAuthResponse response = this.post("/?/props/", params, this.name);
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_CREATED ) {
@@ -297,11 +293,10 @@ public class User {
      */
     public String setProperty( String name, String value )
             throws Unauthorized, ResourceNotFound, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        String url = "/users/" + this.name + "/props/" + name + "/";
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "value", value );
 
-        RestAuthResponse response = this.conn.put( url, params );
+        RestAuthResponse response = this.put( "/?/props/?/", params, this.name, name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -334,8 +329,7 @@ public class User {
      */
     public String getProperty( String name )
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        String url = "/users/" + this.name + "/props/" + name + "/";
-        RestAuthResponse response = this.conn.get(url );
+        RestAuthResponse response = this.get( "/?/props/?/", this.name, name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_OK ) {
@@ -365,8 +359,7 @@ public class User {
      */
     public void removeProperty( String name )
             throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
-        String url = "/users/" + this.name + "/props/" + name + "/";
-        RestAuthResponse response = this.conn.get(url );
+        RestAuthResponse response = this.delete( "/?/props/?/", this.name, name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -394,7 +387,7 @@ public class User {
      */
     public void remove()
             throws ResourceNotFound, Unauthorized, NotAcceptable, InternalServerError, UnknownStatus, RequestFailed {
-        RestAuthResponse response = this.conn.delete( User.prefix + name);
+        RestAuthResponse response = this.delete( "/?/", this.name );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
@@ -407,14 +400,38 @@ public class User {
     }
 
     @Override
-    public boolean equals( Object other ) {
-        if ( ! ( other instanceof User ) ) return false;
-        User o = (User) other;
-        return o.name.equals( this.name ) && this.conn.equals( o.conn );
+    protected RestAuthResponse get(String path, String... args)
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+        path = RestAuthConnection.formatPath( User.prefix + path, args);
+        return this.conn.get( path );
     }
 
     @Override
-    public int hashCode() {
-        return this.name.hashCode() * 3 * this.conn.hashCode();
+    protected RestAuthResponse get(String path, Map<String, String> params, String... args )
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+        path = RestAuthConnection.formatPath( User.prefix + path, args);
+        return this.conn.get( path, params );
+    }
+
+    @Override
+    protected RestAuthResponse post(String path, Map<String, String> params, String... args)
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+        path = RestAuthConnection.formatPath( User.prefix + path, args);
+        return this.conn.post( path, params );
+    }
+
+    @Override
+    protected RestAuthResponse put(String path, Map<String, String> params, String... args)
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+        path = RestAuthConnection.formatPath( User.prefix + path, args);
+        return this.conn.put( path, params );
+    }
+
+
+    @Override
+    public RestAuthResponse delete( String path, String... args )
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+        path = RestAuthConnection.formatPath( User.prefix + path, args);
+        return this.conn.delete( path );
     }
 }

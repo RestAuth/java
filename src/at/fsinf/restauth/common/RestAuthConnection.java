@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -224,7 +225,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public RestAuthResponse get( String path, HashMap<String, String> params )
+    public RestAuthResponse get( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         String queryString = "";
         Set<String> keys = params.keySet();
@@ -244,9 +245,7 @@ public class RestAuthConnection extends DefaultHttpClient {
             }
         }
 
-        path = this.sanitizePath( path ) + queryString;
-        HttpGet method = new HttpGet( path );
-        return this.send( method );
+        return this.send( new HttpGet( path + queryString ) );
     }
 
     /**
@@ -266,9 +265,9 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @see The <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
      *      Dictionary</a> in the RestAuth specification.
      */
-    public RestAuthResponse post( String path, HashMap<String, String> params )
+    public RestAuthResponse post( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        HttpPost method = new HttpPost( this.sanitizePath( path ) );
+        HttpPost method = new HttpPost( path );
         String body = this.handler.marshal_dictionary( params );
         try {
             method.setEntity(new StringEntity(body));
@@ -296,9 +295,9 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @see The <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
      *      Dictionary</a> in the RestAuth specification.
      */
-    public RestAuthResponse put( String path, HashMap<String, String> params )
+    public RestAuthResponse put( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        HttpPut method = new HttpPut( this.sanitizePath( path ) );
+        HttpPut method = new HttpPut( path );
         String body = this.handler.marshal_dictionary( params );
         try {
             method.setEntity(new StringEntity(body));
@@ -325,18 +324,24 @@ public class RestAuthConnection extends DefaultHttpClient {
      */
     public RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        HttpDelete method = new HttpDelete( this.sanitizePath( path ) );
-        
-        return this.send( method );
+        return this.send( new HttpDelete( path ) );
     }
 
-    private String sanitizePath( String path ) {
-        if ( ! path.endsWith( "/" ) )
-            path = path + "/";
-        if ( ! path.startsWith( "/" ) )
-            path = "/" + path;
-        
-        return path;
+    public static String formatPath( String path, String... args ) {
+        // check that number of "_" equals number of args:
+        if ( path.length() - path.replaceAll("\\?", "").length() != args.length ) {
+            throw new RuntimeException( "invalid number of format specifiers" );
+        }
+
+        for ( int i = 0; i < args.length; i++ ) {
+            try {
+                path = path.replaceFirst("\\?", URLEncoder.encode(args[i], "utf-8"));
+            } catch (UnsupportedEncodingException ex) {} // never thrown
+        }
+
+        if ( ! path.endsWith( "/" ) ) path = path + "/";
+        if ( ! path.startsWith( "/" ) ) path = "/" + path;
+        return path.replaceAll( "//", "/");
     }
 
     /**
