@@ -185,7 +185,7 @@ public class Group extends Resource {
             }
 
             return groups;
-        } else if ( respCode == HttpStatus.SC_OK ) {
+        } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
             throw new ResourceNotFound( response );
         } else {
             throw new UnknownStatus( response );
