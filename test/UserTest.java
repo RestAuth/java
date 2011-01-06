@@ -3,8 +3,11 @@
  * and open the template in the editor.
  */
 
+import at.fsinf.restauth.errors.PreconditionFailed;
+import at.fsinf.restauth.resources.Group;
 import at.fsinf.restauth.errors.ResourceNotFound;
 import at.fsinf.restauth.errors.PropertyExists;
+import at.fsinf.restauth.errors.Unauthorized;
 import java.net.URISyntaxException;
 import java.util.Map;
 import at.fsinf.restauth.errors.RestAuthException;
@@ -41,21 +44,62 @@ public class UserTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws RestAuthException {
+        List<User> users = User.get_all( this.conn );
+        assertEquals( 0, users.size() );
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws RestAuthException {
+        List<User> users = User.get_all( this.conn );
+        for ( User user : users ) {
+            user.remove();
+        }
     }
 
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
+    @Test
+    public void createUser() throws RestAuthException {
+        User user = User.create( this.conn, "createuser", "password" );
+        User user_get = User.get( this.conn, "createuser" );
+        List<User> users = User.get_all( this.conn );
+        assertEquals( user, user_get );
+        assertEquals( 1, users.size() );
+        assertEquals( user, users.get(0) );
+    }
 
     @Test
-    public void createUser() throws IOException, RestAuthException {
+    public void createUserWithSlash() throws RestAuthException {
+        try {
+            User.create( this.conn, "create/user", "pwd" );
+            fail();
+        } catch (PreconditionFailed e) {
+            assertEquals( 0, User.get_all( this.conn ).size() );
+        }
+    }
+
+    @Test
+    public void createUserWithSpace() throws RestAuthException {
+        User user = User.create( this.conn, "create user", "password" );
+        User user_get = User.get( this.conn, "create user" );
+        List<User> users = User.get_all( this.conn );
+        assertEquals( user, user_get );
+        assertEquals( 1, users.size() );
+        assertEquals( user, users.get(0) );
+    }
+
+    @Test
+    public void createUserWithUnicode() throws RestAuthException {
+        String username = "user \u611b";
+        User user = User.create( this.conn, username, "password" );
+        User user_get = User.get( this.conn, username );
+        List<User> users = User.get_all( this.conn );
+        assertEquals( user, user_get );
+        assertEquals( 1, users.size() );
+        assertEquals( user, users.get(0) );
+    }
+
+//    @Test
+    public void testAll() throws IOException, RestAuthException {
         String username = "mati";
         String password = "foobar";
         String newpassword = "new password";
