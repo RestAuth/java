@@ -21,10 +21,14 @@ import org.apache.http.HttpStatus;
  * @author mati
  */
 public class Group extends Resource {
-    private static String prefix = "/groups/";
+    protected static String prefix = "/groups/";
 
     public Group( RestAuthConnection connection, String name ) {
         super( connection, name );
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public static Group create( RestAuthConnection connection, String name )
