@@ -66,13 +66,15 @@ public class Group extends Resource {
     }
 
     public static Group get( RestAuthConnection connection, String name )
-            throws UnknownStatus, NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws UnknownStatus, NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound {
         String path = String.format( "%s%s/", Group.prefix, name );
         RestAuthResponse response = connection.get( path );
         int respCode = response.getStatusCode();
 
         if ( respCode == HttpStatus.SC_NO_CONTENT ) {
             return new Group( connection, name );
+        } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
+            throw new ResourceNotFound( response );
         } else {
             throw new UnknownStatus( response );
         }
@@ -93,7 +95,7 @@ public class Group extends Resource {
             }
 
             return users;
-        } else if ( respCode == HttpStatus.SC_OK ) {
+        } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
             throw new ResourceNotFound( response );
         } else {
             throw new UnknownStatus( response );
@@ -198,13 +200,13 @@ public class Group extends Resource {
     public void addGroup( String groupname ) 
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
         Map<String, String> params = new HashMap<String, String>();
-        params.put( "user", groupname );
+        params.put( "group", groupname );
 
         String path = String.format( "%s/groups/", this.name );
         RestAuthResponse response = this.post( path, params );
         int respCode = response.getStatusCode();
 
-        if( respCode == HttpStatus.SC_CREATED ) {
+        if( respCode == HttpStatus.SC_NO_CONTENT ) {
             return;
         } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
             throw new ResourceNotFound( response );
