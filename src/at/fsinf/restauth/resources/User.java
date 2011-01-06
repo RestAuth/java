@@ -380,8 +380,59 @@ public class User extends Resource {
         }
     }
 
-    public String getName() {
-        return this.name;
+    public List<Group> getGroups() 
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put( "user", this.name );
+        RestAuthResponse response = this.conn.get( Group.prefix, params );
+        int respCode = response.getStatusCode();
+
+        if ( respCode == HttpStatus.SC_OK ) {
+             List<String> groupnames =
+                     this.conn.handler.unmarshal_list( response.getBody() );
+             List<Group> groups = new ArrayList<Group>();
+             for( String groupname : groupnames ) {
+                 groups.add( new Group( this.conn, groupname ) );
+             }
+             return groups;
+        } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
+            throw new ResourceNotFound( response );
+        } else {
+            throw new UnknownStatus( response );
+        }
+    }
+
+    public boolean inGroup( Group group ) 
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+        return group.isMember( this.name );
+    }
+
+    public boolean inGroup( String groupname ) 
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+        Group group = new Group( this.conn, groupname );
+        return group.isMember(this.name);
+    }
+
+    public void addGroup( Group group )
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+        group.addUser( this.name );
+    }
+
+    public void addGroup( String groupname ) 
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+        Group group = new Group( this.conn, groupname );
+        group.addUser( this.name );
+    }
+
+    public void removeGroup( String groupname )
+            throws NotAcceptable, Unauthorized, InternalServerError, ResourceNotFound, UnknownStatus, RequestFailed {
+        Group group = new Group( this.conn, groupname );
+        group.removeUser( this.name );
+    }
+
+    public void removeGroup( Group group )
+            throws NotAcceptable, Unauthorized, InternalServerError, ResourceNotFound, UnknownStatus, RequestFailed {
+        group.removeUser( this.name );
     }
 
     /**
@@ -442,6 +493,10 @@ public class User extends Resource {
     public RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         return this.conn.delete( User.prefix + path );
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Override
