@@ -246,19 +246,7 @@ public class Group extends Resource {
             throw new UnknownStatus( response );
         }
     }
-    
-    /**
-     *
-     * @param other
-     * @return
-     */
-    @Override
-    public boolean equals( Object other ) {
-        if ( ! ( other instanceof Group ) ) return false;
-        Group o = (Group) other;
-        return o.name.equals( this.name ) && this.conn.equals( o.conn );
-    }
-    
+
     @Override
     protected RestAuthResponse get( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
@@ -287,5 +275,17 @@ public class Group extends Resource {
     protected RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         return this.conn.get( Group.prefix + path );
+    }
+
+    @Override
+    public boolean equals( Object other ) {
+        if ( ! (other instanceof Group) ) return false;
+        Group o = (Group) other;
+        return o.name.equals( this.name ) && this.conn.equals( o.conn );
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode() * 3 * this.conn.hashCode();
     }
 }

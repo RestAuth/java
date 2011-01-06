@@ -443,4 +443,16 @@ public class User extends Resource {
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         return this.conn.delete( User.prefix + path );
     }
+
+    @Override
+    public boolean equals( Object other ) {
+        if ( ! (other instanceof User) ) return false;
+        User o = (User) other;
+        return o.name.equals( this.name ) && this.conn.equals( o.conn );
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode() * 3 * this.conn.hashCode();
+    }
 }
