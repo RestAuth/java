@@ -14,13 +14,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -292,7 +288,7 @@ public class RestAuthConnection extends DefaultHttpClient {
         HttpPost method = new HttpPost();
         String body = this.handler.marshal_dictionary( params );
         try {
-            method.setEntity(new StringEntity(body));
+            method.setEntity(new StringEntity(body, "UTF-8"));
         } catch (UnsupportedEncodingException ex) {
             throw new RequestFailed( ex );
         }
@@ -322,7 +318,7 @@ public class RestAuthConnection extends DefaultHttpClient {
         HttpPut method = new HttpPut();
         String body = this.handler.marshal_dictionary( params );
         try {
-            method.setEntity(new StringEntity(body));
+            method.setEntity(new StringEntity(body, "UTF-8"));
         } catch (UnsupportedEncodingException ex) {
             throw new RequestFailed( ex );
         }
