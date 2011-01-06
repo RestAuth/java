@@ -5,10 +5,9 @@ import at.fsinf.restauth.common.RestAuthResponse;
 import at.fsinf.restauth.errors.GroupExists;
 import at.fsinf.restauth.errors.InternalServerError;
 import at.fsinf.restauth.errors.NotAcceptable;
+import at.fsinf.restauth.errors.PreconditionFailed;
 import at.fsinf.restauth.errors.RequestFailed;
-import at.fsinf.restauth.errors.ResourceExists;
 import at.fsinf.restauth.errors.ResourceNotFound;
-import at.fsinf.restauth.errors.RestAuthException;
 import at.fsinf.restauth.errors.Unauthorized;
 import at.fsinf.restauth.errors.UnknownStatus;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class Group extends Resource {
     }
 
     public static Group create( RestAuthConnection connection, String name )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, UnknownStatus, GroupExists {
+            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, UnknownStatus, GroupExists, PreconditionFailed {
         Map<String, String> params = new HashMap<String, String>();
         params.put( "group", name );
 
@@ -40,6 +39,8 @@ public class Group extends Resource {
             return new Group( connection, name );
         } else if ( respCode == HttpStatus.SC_CONFLICT ) {
             throw new GroupExists( response );
+        } else if ( respCode == HttpStatus.SC_PRECONDITION_FAILED ) {
+            throw new PreconditionFailed( response );
         } else {
             throw new UnknownStatus( response );
         }
