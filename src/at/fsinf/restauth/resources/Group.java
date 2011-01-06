@@ -114,7 +114,7 @@ public class Group extends Resource {
         RestAuthResponse response = this.post( path, params );
         int respCode = response.getStatusCode();
 
-        if( respCode == HttpStatus.SC_CREATED ) {
+        if( respCode == HttpStatus.SC_NO_CONTENT ) {
             return;
         } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
             throw new ResourceNotFound( response );
@@ -263,19 +263,19 @@ public class Group extends Resource {
     @Override
     protected RestAuthResponse post( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        return this.conn.get( Group.prefix + path, params );
+        return this.conn.post( Group.prefix + path, params );
     }
 
     @Override
     protected RestAuthResponse put( String path, Map<String, String> params )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        return this.conn.get( Group.prefix + path, params );
+        return this.conn.put( Group.prefix + path, params );
     }
 
     @Override
     protected RestAuthResponse delete( String path )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
-        return this.conn.get( Group.prefix + path );
+        return this.conn.delete( Group.prefix + path );
     }
 
     @Override
