@@ -334,4 +334,20 @@ public class GroupTests {
             assertEquals( "group", ex.getType() );
         }
     }
+
+    @Test
+    public void getGroupsOfUser() throws RestAuthException {
+        Group group1 = Group.create(conn, group_1);
+        User user1 = User.create(conn, user_1, "password");
+        List<Group> groups = user1.getGroups();
+        for( Group group : groups ) System.out.println( group.getName() );
+        assertEquals( 0, groups.size() );
+        assertFalse( user1.inGroup( group1 ) );
+
+        user1.addGroup(group1);
+        groups = user1.getGroups();
+        assertEquals( 1, groups.size() );
+        assertEquals( group1, groups.get(0) );
+        assertTrue( user1.inGroup( group1 ) );
+    }
 }
