@@ -19,7 +19,7 @@ public abstract class Resource {
     protected RestAuthConnection conn;
 
     protected Resource( RestAuthConnection connection, String name ) {
-        this.name = name;
+        this.name = name.toLowerCase();
         this.conn = connection;
     }
 
