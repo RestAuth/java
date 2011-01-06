@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 
+import java.util.HashMap;
 import at.fsinf.restauth.errors.PreconditionFailed;
 import at.fsinf.restauth.errors.ResourceNotFound;
 import at.fsinf.restauth.errors.PropertyExists;
@@ -10,7 +11,6 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import at.fsinf.restauth.errors.RestAuthException;
 import at.fsinf.restauth.resources.User;
-import java.io.IOException;
 import java.util.List;
 import at.fsinf.restauth.common.RestAuthConnection;
 import java.net.MalformedURLException;
@@ -26,11 +26,14 @@ import static org.junit.Assert.*;
  * @author mati
  */
 public class UserTest {
-    RestAuthConnection conn;
+    RestAuthConnection conn = new RestAuthConnection( "http://localhost:8000",
+            "vowi", "vowi");
+    String username = "user \u611b";
+    String password = "password \u611b";
+    String prop_1_key = "key \u609b";
+    String prop_1_val = "val \u610b";
 
     public UserTest() throws MalformedURLException, URISyntaxException {
-        this.conn = new RestAuthConnection(
-            "http://localhost:8000", "vowi", "vowi");
     }
 
     @BeforeClass
@@ -87,107 +90,167 @@ public class UserTest {
 
     @Test
     public void createUserWithUnicode() throws RestAuthException {
-        String username = "user \u611b";
-        User user = User.create( this.conn, username, "password" );
-        User user_get = User.get( this.conn, username );
+        User user = User.create( this.conn, this.username, "password" );
+        User user_get = User.get( this.conn, this.username );
         List<User> users = User.getAll( this.conn );
         assertEquals( user, user_get );
         assertEquals( 1, users.size() );
         assertEquals( user, users.get(0) );
     }
 
-//    @Test
-    public void testAll() throws IOException, RestAuthException {
-        String username = "mati";
-        String password = "foobar";
-        String newpassword = "new password";
-        String prop_1_key = "email";
-        String prop_1_val = "mati@fsinf.at";
-        String prop_2_key = "full name";
-        String prop_2_val = "Mathias Ertl";
+    @Test
+    public void testVerifyPassword() throws RestAuthException {
+        User user = User.create( this.conn, this.username, this.password );
 
-        List<User> users = User.getAll( this.conn );
-        assertEquals( 0, users.size() );
+        assertTrue( user.verifyPassword( this.password ) );
+        assertFalse( user.verifyPassword( "whatever" ) );
+    }
 
-        User mati = User.create( this.conn, username, password );
-        assertTrue( mati.verifyPassword( password ) );
-        assertFalse( mati.verifyPassword("wrongpass") );
-        mati.setPassword( newpassword );
-        assertTrue( mati.verifyPassword( newpassword ) );
-        assertFalse( mati.verifyPassword( password ) );
+    @Test
+    public void testSetPassword() throws RestAuthException {
+        String newpassword = "new password \u612b";
+        User user = User.create( this.conn, this.username, this.password );
+        assertFalse( user.verifyPassword( newpassword ) );
+        assertTrue( user.verifyPassword( this.password ) );
 
-        users = User.getAll( this.conn );
-        assertEquals( 1, users.size() );
-        assertEquals( users.get(0), mati );
+        user.setPassword( newpassword );
+        assertTrue( user.verifyPassword( newpassword ) );
+        assertFalse( user.verifyPassword( this.password ) );
+    }
 
-        Map<String, String> props = mati.getProperties();
-        assertEquals( 0, props.size() );
+    @Test
+    public void testPasswordOfInvalidUser() throws RestAuthException {
+        User user = new User( this.conn, this.username );
+        assertFalse( user.verifyPassword( this.password ) );
+    }
 
-        mati.createProperty(prop_1_key, prop_1_val);
-        props = mati.getProperties();
+    @Test
+    public void createProperty() throws RestAuthException {
+        Map<String, String> props = new HashMap<String, String>();
+
+        User user = User.create( this.conn, this.username, this.password );
+        user.createProperty(prop_1_key, prop_1_val);
+        props = user.getProperties();
         assertEquals( 1, props.size() );
-        assertTrue( props.containsKey( prop_1_key ) );
+        assertTrue( props.containsKey(prop_1_key));
         assertEquals( prop_1_val, props.get(prop_1_key));
-        assertEquals( prop_1_val, mati.getProperty(prop_1_key));
+        assertEquals( prop_1_val, user.getProperty(prop_1_key));
+    }
+
+    @Test
+    public void createPropertyTwice() throws RestAuthException {
+        Map<String, String> props = new HashMap<String, String>();
+
+        String prop_1_val_new = "val \u611b";
+
+        User user = User.create( this.conn, this.username, this.password );
         try {
-            mati.createProperty(prop_1_key, "wrong@fsinf.at" );
-            fail(); // this should already exists
-        } catch (PropertyExists e) {
-            // verify that the one defined property hasn't changed:
-            props = mati.getProperties();
+            user.createProperty(prop_1_key, prop_1_val);
+        } catch (PropertyExists ex ){
+            fail();
+        }
+
+        try {
+            user.createProperty(prop_1_key, prop_1_val_new);
+            fail();
+        } catch (PropertyExists ex) {
+            // assure that the value wasn't overwritten!
+            props = user.getProperties();
             assertEquals( 1, props.size() );
-            assertTrue( props.containsKey( prop_1_key ) );
+            assertTrue( props.containsKey(prop_1_key));
             assertEquals( prop_1_val, props.get(prop_1_key));
-            assertEquals( prop_1_val, mati.getProperty(prop_1_key));
+            assertEquals( prop_1_val, user.getProperty(prop_1_key));
         }
+    }
 
-        // setting property. second try returns old value:
-        assertNull( mati.setProperty(prop_2_key, prop_2_val ) );
-        assertEquals( prop_2_val, mati.getProperty(prop_2_key) );
-        assertEquals( prop_2_val, mati.setProperty(prop_2_key,
-                "Mathias Robert Benjamin Ertl" ));
-        assertEquals( "Mathias Robert Benjamin Ertl",
-                mati.getProperty(prop_2_key) );
-        assertEquals( prop_1_val, mati.getProperty(prop_1_key));
-        
-        // verify that we now have the correct two properties:
-        props = mati.getProperties();
-        assertEquals( 2, props.size() );
-        assertTrue( props.containsKey( prop_1_key ));
-        assertTrue( props.containsKey( prop_2_key ));
-        assertEquals( "Mathias Robert Benjamin Ertl", props.get(prop_2_key));
-        assertEquals( prop_1_val, props.get(prop_1_key) );
-        
+    @Test
+    public void createPropertyWithInvalidUser() throws RestAuthException {
+        User user = new User( this.conn, this.username );
         try {
-            // try to get a propety that does not exist
-            mati.getProperty( "does not exist" );
+            user.createProperty("foo", "bar");
             fail();
-        } catch (ResourceNotFound e) {
-            assertEquals( "property", e.getType());
+        } catch (ResourceNotFound ex) {
+            assertEquals( "user", ex.getType() );
         }
+    }
 
-        // remove the prop_2_key property and verify that its gone:
-        mati.removeProperty(prop_2_key);
-        props = mati.getProperties();
+    @Test
+    public void setProperty() throws RestAuthException {
+        Map<String, String> props;
+        User user = User.create( this.conn, this.username, this.password );
+
+        assertEquals( 0, user.getProperties().size() );
+        assertNull( user.setProperty(prop_1_key, prop_1_val ) );
+        props = user.getProperties();
         assertEquals( 1, props.size() );
-        assertTrue( props.containsKey( prop_1_key ) );
+        assertTrue( props.containsKey(prop_1_key));
         assertEquals( prop_1_val, props.get(prop_1_key));
+        assertEquals( prop_1_val, user.getProperty(prop_1_key));
+    }
+
+    @Test
+    public void setPropertyTwice() throws RestAuthException {
+        Map<String, String> props;
+        String prop_1_val_new = "key \u612b";
+        User user = User.create( this.conn, this.username, this.password );
+
+        assertNull( user.setProperty(prop_1_key, prop_1_val ) );
+        assertEquals( prop_1_val, user.setProperty(prop_1_key, prop_1_val_new));
+        props = user.getProperties();
+        assertEquals( 1, props.size() );
+        assertTrue( props.containsKey(prop_1_key));
+        assertEquals( prop_1_val_new, props.get(prop_1_key));
+        assertEquals( prop_1_val_new, user.getProperty(prop_1_key));
+    }
+
+    @Test
+    public void removeProperty() throws RestAuthException {
+        User user = User.create( this.conn, this.username, this.password );
+
+        assertNull( user.setProperty(prop_1_key, prop_1_val ) );
+        user.removeProperty(prop_1_key);
+        assertEquals( 0, user.getProperties().size() );
+    }
+
+    @Test
+    public void removeInvalidProperty() throws RestAuthException {
+        User user = User.create( this.conn, this.username, this.password );
+
         try {
-            mati.getProperty(prop_2_key);
+            user.removeProperty(prop_1_key);
             fail();
-        } catch (ResourceNotFound e) {
-            assertEquals( "property", e.getType());
+        } catch (ResourceNotFound ex) {
+            assertEquals( "property", ex.getType() );
         }
+    }
 
+    @Test
+    public void removePropertyOfInvalidUser() throws RestAuthException {
+        User user = new User( this.conn, this.username );
 
-        /// remove user and verify that we're gone
-        mati.remove();
-        users = User.getAll( this.conn );
-        assertEquals( 0, users.size() );
         try {
-            User.get( this.conn, mati.getName());
-        } catch (ResourceNotFound e) {
-            assertEquals("user", e.getType() );
+            user.removeProperty(prop_1_key);
+            fail();
+        } catch (ResourceNotFound ex) {
+            assertEquals( "user", ex.getType() );
+        }
+    }
+
+    @Test
+    public void removeUser() throws RestAuthException {
+        User user = User.create( this.conn, this.username, this.password );
+        user.remove();
+        assertEquals( 0, User.getAll(conn).size() );
+    }
+
+    @Test
+    public void removeInvalidUser() throws RestAuthException {
+        User user = new User( this.conn, this.username );
+        try {
+            user.remove();
+            fail();
+        } catch (ResourceNotFound ex ) {
+            assertEquals( "user", ex.getType() );
         }
     }
 }
