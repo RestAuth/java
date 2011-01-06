@@ -183,6 +183,7 @@ public class GroupTests {
 
         try {
             group.removeUser(user_1);
+            fail();
         } catch ( ResourceNotFound ex ) {
             assertEquals( "group", ex.getType());
         }
@@ -240,11 +241,95 @@ public class GroupTests {
         } catch ( ResourceNotFound ex ) {
             assertEquals( "group", ex.getType() );
             assertEquals( 0, group1.getGroups().size() );
-            assertEquals( 0, Group.getAll(conn).size() );
+            assertEquals( 1, Group.getAll(conn).size() );
         }
 
         try {
             Group.get(conn, group_2);
+            fail();
+        } catch ( ResourceNotFound ex ) {
+            assertEquals( "group", ex.getType() );
+        }
+    }
+
+    @Test
+    public void addGroupToInvalidGroup() throws RestAuthException {
+        Group group1 = Group.create(conn, group_1);
+        Group group2 = new Group( conn, group_2 );
+
+        try {
+            group2.addGroup(group1);
+            fail();
+        } catch ( ResourceNotFound ex ) {
+            assertEquals( "group", ex.getType() );
+            assertEquals( 1, Group.getAll(conn).size() );
+        }
+    }
+
+    @Test
+    public void removeGroupFromGroup() throws RestAuthException {
+        Group group1 = Group.create(conn, group_1);
+        Group group2 = Group.create(conn, group_2);
+        group1.addGroup(group2);
+
+        // check if the listed child-groups make sense
+        List<Group> groups1 = group1.getGroups();
+        assertEquals( 1, groups1.size() );
+        assertEquals( group2, groups1.get(0));
+        List<Group> groups2 = group2.getGroups();
+        assertEquals( 0, groups2.size() );
+
+        group1.removeGroup(group2);
+        assertEquals( 0, group1.getGroups().size() );
+        assertEquals( 0, group2.getGroups().size() );
+    }
+
+    @Test
+    public void removeGroupNotMemberFromGroup() throws RestAuthException {
+        Group group1 = Group.create(conn, group_1);
+        Group group2 = Group.create(conn, group_2);
+
+        try {
+            group1.removeGroup(group2);
+            fail();
+        } catch (ResourceNotFound ex) {
+            assertEquals( 0, group1.getGroups().size() );
+            assertEquals( 0, group2.getGroups().size() );
+        }
+    }
+
+    @Test
+    public void removeInvalidGroupFromGroup() throws RestAuthException {
+        Group group1 = Group.create(conn, group_1);
+
+        try {
+            group1.removeGroup(group_2);
+            fail();
+        } catch (ResourceNotFound ex) {
+            assertEquals( 0, group1.getGroups().size() );
+        }
+    }
+
+    @Test
+    public void removeGroup() throws RestAuthException {
+        Group group1 = Group.create(conn, group_1);
+        List<Group> groups = Group.getAll(conn);
+        assertEquals( 1, groups.size());
+        assertEquals( group1, groups.get(0));
+        assertEquals( group1, Group.get(conn, group_1));
+
+        group1.remove();
+        groups = Group.getAll(conn);
+        assertEquals( 0, groups.size() );
+    }
+
+    @Test
+    public void removeInvalidGroup() throws RestAuthException {
+        Group group1 = new Group(conn, group_1);
+
+        try {
+            group1.remove();
+            fail();
         } catch ( ResourceNotFound ex ) {
             assertEquals( "group", ex.getType() );
         }
