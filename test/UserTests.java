@@ -253,4 +253,13 @@ public class UserTests {
             assertEquals( "user", ex.getType() );
         }
     }
+
+    @Test
+    public void getInvalidUser() throws RestAuthException {
+        try {
+            User.get(conn, this.username );
+        } catch (ResourceNotFound ex ) {
+            assertEquals( "user", ex.getType() );
+        }
+    }
 }
