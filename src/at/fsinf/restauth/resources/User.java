@@ -83,7 +83,7 @@ public class User extends Resource {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public static List<User> get_all( RestAuthConnection connection )
+    public static List<User> getAll( RestAuthConnection connection )
             throws Unauthorized, UnknownStatus, InternalServerError, NotAcceptable, RequestFailed {
         RestAuthResponse response = connection.get( User.prefix );
         int respCode = response.getStatusCode();

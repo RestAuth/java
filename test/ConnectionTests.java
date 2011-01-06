@@ -85,7 +85,7 @@ public class ConnectionTests {
     public void postTest() throws IOException, RestAuthException {
         long now = System.currentTimeMillis();
         for ( int i = 0; i < 1000; i++ ) {
-            List<User> users = User.get_all(this.conn);
+            List<User> users = User.getAll(this.conn);
             assertEquals( 0, users.size() );
         }
         long later = System.currentTimeMillis();

@@ -4,10 +4,8 @@
  */
 
 import at.fsinf.restauth.errors.PreconditionFailed;
-import at.fsinf.restauth.resources.Group;
 import at.fsinf.restauth.errors.ResourceNotFound;
 import at.fsinf.restauth.errors.PropertyExists;
-import at.fsinf.restauth.errors.Unauthorized;
 import java.net.URISyntaxException;
 import java.util.Map;
 import at.fsinf.restauth.errors.RestAuthException;
@@ -45,13 +43,13 @@ public class UserTest {
 
     @Before
     public void setUp() throws RestAuthException {
-        List<User> users = User.get_all( this.conn );
+        List<User> users = User.getAll( this.conn );
         assertEquals( 0, users.size() );
     }
 
     @After
     public void tearDown() throws RestAuthException {
-        List<User> users = User.get_all( this.conn );
+        List<User> users = User.getAll( this.conn );
         for ( User user : users ) {
             user.remove();
         }
@@ -61,7 +59,7 @@ public class UserTest {
     public void createUser() throws RestAuthException {
         User user = User.create( this.conn, "createuser", "password" );
         User user_get = User.get( this.conn, "createuser" );
-        List<User> users = User.get_all( this.conn );
+        List<User> users = User.getAll( this.conn );
         assertEquals( user, user_get );
         assertEquals( 1, users.size() );
         assertEquals( user, users.get(0) );
@@ -73,7 +71,7 @@ public class UserTest {
             User.create( this.conn, "create/user", "pwd" );
             fail();
         } catch (PreconditionFailed e) {
-            assertEquals( 0, User.get_all( this.conn ).size() );
+            assertEquals( 0, User.getAll( this.conn ).size() );
         }
     }
 
@@ -81,7 +79,7 @@ public class UserTest {
     public void createUserWithSpace() throws RestAuthException {
         User user = User.create( this.conn, "create user", "password" );
         User user_get = User.get( this.conn, "create user" );
-        List<User> users = User.get_all( this.conn );
+        List<User> users = User.getAll( this.conn );
         assertEquals( user, user_get );
         assertEquals( 1, users.size() );
         assertEquals( user, users.get(0) );
@@ -92,7 +90,7 @@ public class UserTest {
         String username = "user \u611b";
         User user = User.create( this.conn, username, "password" );
         User user_get = User.get( this.conn, username );
-        List<User> users = User.get_all( this.conn );
+        List<User> users = User.getAll( this.conn );
         assertEquals( user, user_get );
         assertEquals( 1, users.size() );
         assertEquals( user, users.get(0) );
@@ -108,7 +106,7 @@ public class UserTest {
         String prop_2_key = "full name";
         String prop_2_val = "Mathias Ertl";
 
-        List<User> users = User.get_all( this.conn );
+        List<User> users = User.getAll( this.conn );
         assertEquals( 0, users.size() );
 
         User mati = User.create( this.conn, username, password );
@@ -118,7 +116,7 @@ public class UserTest {
         assertTrue( mati.verifyPassword( newpassword ) );
         assertFalse( mati.verifyPassword( password ) );
 
-        users = User.get_all( this.conn );
+        users = User.getAll( this.conn );
         assertEquals( 1, users.size() );
         assertEquals( users.get(0), mati );
 
@@ -184,7 +182,7 @@ public class UserTest {
 
         /// remove user and verify that we're gone
         mati.remove();
-        users = User.get_all( this.conn );
+        users = User.getAll( this.conn );
         assertEquals( 0, users.size() );
         try {
             User.get( this.conn, mati.getName());
