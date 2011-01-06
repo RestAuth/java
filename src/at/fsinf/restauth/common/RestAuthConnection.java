@@ -249,18 +249,11 @@ public class RestAuthConnection extends DefaultHttpClient {
         Iterator<String> iter = keys.iterator();
         while (iter.hasNext()) {
             String key = iter.next();
-//            try {
-//                queryString += URLEncoder.encode(key, "utf-8").replace("+", "%20") + "=" + URLEncoder.encode(params.get(key), "utf-8").replace("+", "%20");
-//            } catch (UnsupportedEncodingException ex) {
-//                throw new RequestFailed( ex );
-//            }
             queryString += key + "=" + params.get(key);
             
             if (iter.hasNext()) {
                 queryString += "&";
-            } else {
-                queryString = "?" + queryString;
-            }
+            } 
         }
 
         return this.send( new HttpGet(), path, queryString );
