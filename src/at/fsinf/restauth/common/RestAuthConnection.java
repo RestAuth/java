@@ -168,8 +168,6 @@ public class RestAuthConnection extends DefaultHttpClient {
      *
      * @param request The request to send.
      * @return The response returned by the RestAuth server.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
@@ -177,7 +175,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      reached the RestAuth server).
      */
     public RestAuthResponse send(HttpRequestBase request, String path )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.send( request, path, null );
     }
 
@@ -190,13 +188,10 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param path
      * @param query
      * @return
-     * @throws NotAcceptable
      * @throws Unauthorized
-     * @throws InternalServerError
-     * @throws RequestFailed
      */
     public RestAuthResponse send(HttpRequestBase request, String path, String query )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, RequestFailed, InternalServerError {
         request.addHeader( "Accept", this.handler.getMimeType() );
         request.addHeader( "Authorization", "Basic " + this.authHeader );
 
@@ -226,8 +221,6 @@ public class RestAuthConnection extends DefaultHttpClient {
      *
      * @param path The path to make the request to.
      * @return The response returned by the RestAuth server.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
@@ -235,7 +228,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      reached the RestAuth server).
      */
     public RestAuthResponse get( String path )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.send( new HttpGet(), path );
     }
 
@@ -246,8 +239,6 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param params The query string represented as a map. Each map key
      *      represents a query string key, each map value a query string value.
      * @return The response returned by the RestAuth server.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
@@ -255,7 +246,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      reached the RestAuth server).
      */
     public RestAuthResponse get( String path, Map<String, String> params )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         String queryString = "";
         Set<String> keys = params.keySet();
         Iterator<String> iter = keys.iterator();
@@ -278,8 +269,6 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param params The dictionary that should be use as the request body.
      *
      * @return The response returned by the RestAuth server.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
@@ -289,7 +278,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      Dictionary</a> in the RestAuth specification.
      */
     public RestAuthResponse post( String path, Map<String, String> params )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         HttpPost method = new HttpPost();
         String body = this.handler.marshal_dictionary( params );
         try {
@@ -308,8 +297,6 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param path The path to make the request to.
      * @param params The dictionary that should be use as the request body.
      * @return The response returned by the RestAuth server.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
@@ -319,7 +306,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      Dictionary</a> in the RestAuth specification.
      */
     public RestAuthResponse put( String path, Map<String, String> params )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         HttpPut method = new HttpPut();
         String body = this.handler.marshal_dictionary( params );
         try {
@@ -337,16 +324,14 @@ public class RestAuthConnection extends DefaultHttpClient {
      *
      * @param path The path to make the request to.
      * @return The response returned by the RestAuth server.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
-     * @throws Unauthorized
+     * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public RestAuthResponse delete( String path )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.send( new HttpDelete(), path );
     }
 

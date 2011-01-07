@@ -13,12 +13,16 @@ import at.fsinf.restauth.common.RestAuthResponse;
  *
  * @author Mathias Ertl
  */
-public abstract class RestAuthInternalError extends RestAuthException {
+public abstract class RestAuthRuntimeException extends RuntimeException {
+    RestAuthResponse response;
+
     /**
      * @todo try getting around having to implement this constructor.
      */
-    public RestAuthInternalError() {};
-    public RestAuthInternalError( RestAuthResponse response, int expectedCode ) {
-        super( response, expectedCode );
+    public RestAuthRuntimeException() {};
+    public RestAuthRuntimeException( RestAuthResponse response, int expectedCode ) {
+        this.response = response;
+        if ( expectedCode != response.getStatusCode() )
+            throw new RuntimeException( "RestAuthRuntimeException with wrong status!");
     }
 }

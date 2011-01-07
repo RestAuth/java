@@ -8,7 +8,7 @@ import org.apache.http.HttpStatus;
  *
  * @author Mathias Ertl
  */
-public class InternalServerError extends RestAuthInternalError {
+public class InternalServerError extends RestAuthException {
     public InternalServerError( RestAuthResponse response ) {
         super( response, HttpStatus.SC_INTERNAL_SERVER_ERROR );
     }

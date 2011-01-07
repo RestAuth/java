@@ -9,7 +9,7 @@ import org.apache.http.HttpStatus;
  *
  * @author Mathias Ertl
  */
-public class NotAcceptable extends RestAuthInternalError {
+public class NotAcceptable extends RestAuthRuntimeException {
     public NotAcceptable( RestAuthResponse response ) {
         super( response, HttpStatus.SC_NOT_ACCEPTABLE );
     }

@@ -13,7 +13,7 @@ import org.apache.http.HttpRequest;
  *
  * @author Mathias Ertl
  */
-public class RequestFailed extends RestAuthInternalError {
+public class RequestFailed extends RestAuthException {
     private HttpRequest request;
     private Exception cause;
 

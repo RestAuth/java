@@ -9,7 +9,7 @@ import org.apache.http.HttpStatus;
  *
  * @author Mathias Ertl
  */
-public class BadRequest extends RestAuthInternalError {
+public class BadRequest extends RestAuthRuntimeException {
     public BadRequest( RestAuthResponse response ) {
         super( response, HttpStatus.SC_BAD_REQUEST );
     }

@@ -7,7 +7,14 @@ package at.fsinf.restauth.resources;
 
 import at.fsinf.restauth.common.RestAuthConnection;
 import at.fsinf.restauth.common.RestAuthResponse;
-import at.fsinf.restauth.errors.*;
+import at.fsinf.restauth.errors.InternalServerError;
+import at.fsinf.restauth.errors.PreconditionFailed;
+import at.fsinf.restauth.errors.PropertyExists;
+import at.fsinf.restauth.errors.RequestFailed;
+import at.fsinf.restauth.errors.ResourceNotFound;
+import at.fsinf.restauth.errors.Unauthorized;
+import at.fsinf.restauth.errors.UnknownStatus;
+import at.fsinf.restauth.errors.UserExists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,17 +51,13 @@ public class User extends Resource {
      * @return The user, guaranteed to exist in this moment.
      * @throws ResourceNotFound If the user in question does not exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public static User get( RestAuthConnection connection, String name )
-            throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws ResourceNotFound, Unauthorized, InternalServerError, RequestFailed {
         String path = String.format( "%s%s/", User.prefix, name );
         RestAuthResponse response = connection.get( path );
         int respCode = response.getStatusCode();
@@ -74,17 +77,13 @@ public class User extends Resource {
      * @param connection The connection to use when making requests.
      * @return A list of all users known to RestAuth
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public static List<User> getAll( RestAuthConnection connection )
-            throws Unauthorized, UnknownStatus, InternalServerError, NotAcceptable, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         RestAuthResponse response = connection.get( User.prefix );
         int respCode = response.getStatusCode();
         if ( respCode == HttpStatus.SC_OK ) {
@@ -112,17 +111,13 @@ public class User extends Resource {
      * @throws PreconditionFailed If the username or password are not acceptable
      *      to the RestAuth server.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public static User create( RestAuthConnection connection, String name, String passwd )
-            throws UserExists, PreconditionFailed, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws UserExists, PreconditionFailed, Unauthorized, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "user", name );
         params.put( "password", passwd );
@@ -146,17 +141,13 @@ public class User extends Resource {
      * @param newPassword The new password.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws ResourceNotFound If the user in question does not exist.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void setPassword( String newPassword )
-            throws Unauthorized, ResourceNotFound, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", newPassword );
 
@@ -182,17 +173,13 @@ public class User extends Resource {
      * @param password The password to verify.
      * @return true if the password is correct, false otherwise.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public boolean verifyPassword( String password )
-            throws Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", password );
 
@@ -215,17 +202,13 @@ public class User extends Resource {
      * @return A map of the properties of this user.
      * @throws ResourceNotFound If the user in question does not exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public Map<String, String> getProperties()
-            throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws ResourceNotFound, Unauthorized, InternalServerError, RequestFailed {
         String path = String.format( "%s/props/", this.name );
         RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
@@ -249,17 +232,13 @@ public class User extends Resource {
      * @throws PropertyExists If the property already exists.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws ResourceNotFound If the user in question does not exist.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void createProperty( String propName, String value )
-            throws PropertyExists, Unauthorized, ResourceNotFound, UnknownStatus, InternalServerError, NotAcceptable, RequestFailed {
+            throws PropertyExists, Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "prop", propName );
         params.put( "value", value );
@@ -288,17 +267,13 @@ public class User extends Resource {
      *      otherwise.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws ResourceNotFound If the user in question does not exist.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public String setProperty( String propName, String value )
-            throws Unauthorized, ResourceNotFound, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "value", value );
 
@@ -325,17 +300,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public String getProperty( String propName )
-            throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws ResourceNotFound, Unauthorized, InternalServerError, RequestFailed {
         String path = String.format( "%s/props/%s/", this.name, propName );
         RestAuthResponse response = this.get( path );
         int respCode = response.getStatusCode();
@@ -356,17 +327,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void removeProperty( String propName )
-            throws ResourceNotFound, Unauthorized, UnknownStatus, NotAcceptable, InternalServerError, RequestFailed {
+            throws ResourceNotFound, Unauthorized, InternalServerError, RequestFailed {
         String path = String.format( "%s/props/%s/", this.name, propName );
         RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
@@ -387,17 +354,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public List<Group> getGroups()
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+            throws Unauthorized, InternalServerError, RequestFailed, ResourceNotFound {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "user", this.name );
         RestAuthResponse response = this.conn.get( Group.prefix, params );
@@ -426,17 +389,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public boolean inGroup( Group group )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+            throws Unauthorized, InternalServerError, RequestFailed, ResourceNotFound {
         return group.isMember( this.name );
     }
 
@@ -448,17 +407,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public boolean inGroup( String groupname )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+            throws Unauthorized, InternalServerError, RequestFailed, ResourceNotFound {
         Group group = new Group( this.conn, groupname );
         return group.isMember(this.name);
     }
@@ -470,17 +425,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void addGroup( Group group )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+            throws Unauthorized, InternalServerError, RequestFailed, ResourceNotFound {
         group.addUser( this.name );
     }
 
@@ -491,17 +442,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void addGroup( String groupname )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed, ResourceNotFound, UnknownStatus {
+            throws Unauthorized, InternalServerError, RequestFailed, ResourceNotFound {
         Group group = new Group( this.conn, groupname );
         group.addUser( this.name );
     }
@@ -513,17 +460,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void removeGroup( String groupname )
-            throws NotAcceptable, Unauthorized, InternalServerError, ResourceNotFound, UnknownStatus, RequestFailed {
+            throws Unauthorized, InternalServerError, ResourceNotFound, RequestFailed {
         Group group = new Group( this.conn, groupname );
         group.removeUser( this.name );
     }
@@ -535,17 +478,13 @@ public class User extends Resource {
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void removeGroup( Group group )
-            throws NotAcceptable, Unauthorized, InternalServerError, ResourceNotFound, UnknownStatus, RequestFailed {
+            throws Unauthorized, InternalServerError, ResourceNotFound, RequestFailed {
         group.removeUser( this.name );
     }
 
@@ -554,17 +493,13 @@ public class User extends Resource {
      *
      * @throws ResourceNotFound If the user in question does not exist.
      * @throws Unauthorized If the authentication credentials are wrong.
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @throws UnknownStatus The RestAuth server responded with an unknown
-     *      status.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
     public void remove()
-            throws ResourceNotFound, Unauthorized, NotAcceptable, InternalServerError, UnknownStatus, RequestFailed {
+            throws ResourceNotFound, Unauthorized, InternalServerError, RequestFailed {
         String path = String.format( "%s/", this.name );
         RestAuthResponse response = this.delete( path );
         int respCode = response.getStatusCode();
@@ -579,8 +514,6 @@ public class User extends Resource {
     }
 
     /**
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
@@ -590,13 +523,11 @@ public class User extends Resource {
      */
     @Override
     protected RestAuthResponse get( String path )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.get( User.prefix + path );
     }
 
     /**
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
@@ -606,13 +537,11 @@ public class User extends Resource {
      */
     @Override
     protected RestAuthResponse get( String path, Map<String, String> params )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.get( User.prefix + path, params );
     }
 
     /**
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
@@ -622,13 +551,11 @@ public class User extends Resource {
      */
     @Override
     protected RestAuthResponse post(String path, Map<String, String> params )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.post( User.prefix + path, params );
     }
 
     /**
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
@@ -638,14 +565,12 @@ public class User extends Resource {
      */
     @Override
     protected RestAuthResponse put(String path, Map<String, String> params )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.put( User.prefix + path, params );
     }
 
 
     /**
-     * @throws NotAcceptable If the RestAuth server is not enable to generate a
-     *      response a format that is understood by the content handler.
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
@@ -655,7 +580,7 @@ public class User extends Resource {
      */
     @Override
     public RestAuthResponse delete( String path )
-            throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
+            throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.delete( User.prefix + path );
     }
 
