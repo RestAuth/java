@@ -78,8 +78,6 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param user The user used to authenticate against the RestAuth server.
      * @param passwd The password used to authenticate against the RestAuth server.
      * @param handler The content handler to use.
-     * @throws MalformedURLException If the URL passed in the host variable does
-     *      not contain a valid URL.
      */
     public RestAuthConnection( String host, String user, String passwd, ContentHandler handler )
             throws URISyntaxException {
@@ -163,10 +161,10 @@ public class RestAuthConnection extends DefaultHttpClient {
 
     /**
      * Sends an HTTP request to the RestAuth server. This method is used
-     * internally for the {@link get}, {@link get}, {@link put} and {@link
-     * delete} methods and takes care of setting the Accept header and the 
-     * authentication credentials. It also catches various error codes that may
-     * be thrown upon every HTTP request.
+     * internally for the {@link #get(java.lang.String) get}, {@link #post},
+     * {@link #put} and {@link #delete} methods and takes care of setting the
+     * Accept header and the authentication credentials. It also catches various
+     * error codes that may be thrown upon every HTTP request.
      *
      * @param request The request to send.
      * @return The response returned by the RestAuth server.
@@ -182,7 +180,21 @@ public class RestAuthConnection extends DefaultHttpClient {
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         return this.send( request, path, null );
     }
-    
+
+    /**
+     * Same as {@link
+     * #send(org.apache.http.client.methods.HttpRequestBase, java.lang.String)}
+     * but with a querystring attached.
+     *
+     * @param request
+     * @param path
+     * @param query
+     * @return
+     * @throws NotAcceptable
+     * @throws Unauthorized
+     * @throws InternalServerError
+     * @throws RequestFailed
+     */
     public RestAuthResponse send(HttpRequestBase request, String path, String query )
             throws NotAcceptable, Unauthorized, InternalServerError, RequestFailed {
         request.addHeader( "Accept", this.handler.getMimeType() );
@@ -339,6 +351,8 @@ public class RestAuthConnection extends DefaultHttpClient {
     }
 
     /**
+     * A RestAuthConnection instance evaluates as equal to another instance, if
+     * the host and authentication credentials evaluate as equal.
      *
      * @param other
      * @return
@@ -350,10 +364,6 @@ public class RestAuthConnection extends DefaultHttpClient {
         return this.host.equals(o.host) && this.authHeader.equals(o.authHeader);
     }
 
-    /**
-     *
-     * @return
-     */
     @Override
     public int hashCode() {
         int hash = 1;
