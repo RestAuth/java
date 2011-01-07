@@ -1,9 +1,11 @@
 package at.fsinf.restauth.common;
 
+import at.fsinf.restauth.errors.BadRequest;
 import at.fsinf.restauth.errors.InternalServerError;
 import at.fsinf.restauth.errors.NotAcceptable;
 import at.fsinf.restauth.errors.RequestFailed;
 import at.fsinf.restauth.errors.Unauthorized;
+import at.fsinf.restauth.errors.UnsupportedMediaType;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -283,7 +285,13 @@ public class RestAuthConnection extends DefaultHttpClient {
         }
         method.addHeader( "Content-Type", this.handler.getMimeType() );
 
-        return this.send( method, path );
+        RestAuthResponse response = this.send( method, path );
+        int respCode = response.getStatusCode();
+        switch (respCode) {
+            case 400: throw new BadRequest( response );
+            case 415: throw new UnsupportedMediaType( response );
+            default: return response;
+        }
     }
 
     /**
@@ -311,7 +319,13 @@ public class RestAuthConnection extends DefaultHttpClient {
         }
         method.addHeader( "Content-Type", this.handler.getMimeType() );
 
-        return this.send( method, path );
+        RestAuthResponse response = this.send( method, path );
+        int respCode = response.getStatusCode();
+        switch (respCode) {
+            case 400: throw new BadRequest( response );
+            case 415: throw new UnsupportedMediaType( response );
+            default: return response;
+        }
     }
 
     /**
