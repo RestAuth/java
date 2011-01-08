@@ -379,8 +379,8 @@ public class User extends Resource {
     /**
      * Shortcut for {@link Group#isMember isMember}.
      *
-     * @param group
-     * @return
+     * @param group The group.
+     * @return True if the user is in the group, false otherwise.
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
@@ -397,8 +397,8 @@ public class User extends Resource {
     /**
      * Shortcut for {@link Group#isMember isMember}.
      *
-     * @param groupname
-     * @return
+     * @param groupname The name of the group.
+     * @return True if the user is in the group, false otherwise.
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
@@ -416,7 +416,7 @@ public class User extends Resource {
     /**
      * Shortcut for {@link Group#addUser addUser}.
      *
-     * @param group
+     * @param group The group to add to this user.
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
@@ -433,7 +433,7 @@ public class User extends Resource {
     /**
      * Shortcut for {@link Group#addUser addUser}.
      *
-     * @param groupname
+     * @param groupname The name of the group to add to this user.
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
@@ -451,7 +451,7 @@ public class User extends Resource {
     /**
      * Shortcut for {@link Group#removeUser removeUser}.
      * 
-     * @param groupname
+     * @param groupname The name of the group to remove.
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.
@@ -469,7 +469,7 @@ public class User extends Resource {
     /**
      * Shortcut for {@link Group#removeUser removeUser}.
      *
-     * @param group
+     * @param group The group to remove.
      * @throws ResourceNotFound If the user or property in question does not
      *      exist.
      * @throws Unauthorized If the authentication credentials are wrong.

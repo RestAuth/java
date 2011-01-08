@@ -271,8 +271,8 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
-     * @see The <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
-     *      Dictionary</a> in the RestAuth specification.
+     * @see <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
+     *      Dictionary in the RestAuth specification</a>
      */
     public RestAuthResponse post( String path, Map<String, String> params )
             throws Unauthorized, InternalServerError, RequestFailed {
@@ -305,8 +305,8 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
-     * @see The <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
-     *      Dictionary</a> in the RestAuth specification.
+     * @see <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
+     *      Dictionary in the RestAuth specification</a>
      */
     public RestAuthResponse put( String path, Map<String, String> params )
             throws Unauthorized, InternalServerError, RequestFailed {
