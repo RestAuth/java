@@ -5,7 +5,7 @@ import org.apache.http.HttpStatus;
 
 /**
  * Thrown when querying a resource that doesn't exist. You can use
- * {@link getType} to find out what resource could not be found.
+ * {@link #getType} to find out what resource could not be found.
  *
  * @author Mathias Ertl
  */

@@ -21,7 +21,7 @@ public class JsonHandler extends ContentHandler{
     /**
      * Default no-arg constructor.
      *
-     * @Todo this.MimeType should be static
+     * @todo this.MimeType should be static
      */
     public JsonHandler() {
         this.MimeType = "application/json";

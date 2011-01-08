@@ -9,9 +9,9 @@ import at.fsinf.restauth.common.RestAuthResponse;
  *
  * If you want to distinguish between exceptions caused by input and
  * implementation related exceptions, you might want to catch
- * {@link RestAuthInternalError} instead.
+ * {@link RestAuthRuntimeException} instead.
  *
- * @see RestAuthInternalError
+ * @see RestAuthRuntimeException
  * @author Mathias Ertl
  */
 public abstract class RestAuthException extends Exception {
@@ -23,7 +23,7 @@ public abstract class RestAuthException extends Exception {
     /**
      * Default no-arg constructor.
      *
-     * @Todo: Try getting around having to implement this constructor.
+     * @todo: Try getting around having to implement this constructor.
      */
     public RestAuthException() {}
 

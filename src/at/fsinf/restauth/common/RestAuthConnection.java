@@ -32,7 +32,7 @@ import sun.misc.BASE64Encoder;
  */
 public class RestAuthConnection extends DefaultHttpClient {
     /**
-     * @TODO make this private
+     * @todo make this private
      */
     public ContentHandler handler;
 

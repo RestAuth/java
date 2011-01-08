@@ -38,16 +38,18 @@ public class RequestFailed extends RestAuthException {
     }
 
     /**
+     * Get the request that was attempted.
      *
-     * @return
+     * @return The attempted HTTP request.
      */
     public HttpRequest getRequest() {
         return this.request;
     }
 
     /**
+     * The initial cause of this exception.
      *
-     * @return
+     * @return The exception that was originally thrown.
      */
     public Exception getException() {
         return this.cause;
