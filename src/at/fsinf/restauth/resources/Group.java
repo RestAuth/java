@@ -482,7 +482,7 @@ public class Group extends Resource {
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse get( String path )
@@ -496,7 +496,7 @@ public class Group extends Resource {
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse get( String path, Map<String, String> params )
@@ -510,7 +510,7 @@ public class Group extends Resource {
      *      internal error.
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse post( String path, Map<String, String> params )
@@ -524,7 +524,7 @@ public class Group extends Resource {
      * @throws Unauthorized If the authentication credentials are wrong.
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse put( String path, Map<String, String> params )
@@ -538,7 +538,7 @@ public class Group extends Resource {
      *      reached the RestAuth server).
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse delete( String path )

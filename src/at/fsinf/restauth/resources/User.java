@@ -514,7 +514,7 @@ public class User extends Resource {
      *      reached the RestAuth server).
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse get( String path )
@@ -528,7 +528,7 @@ public class User extends Resource {
      *      reached the RestAuth server).
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse get( String path, Map<String, String> params )
@@ -542,7 +542,7 @@ public class User extends Resource {
      *      reached the RestAuth server).
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse post(String path, Map<String, String> params )
@@ -556,7 +556,7 @@ public class User extends Resource {
      *      reached the RestAuth server).
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     protected RestAuthResponse put(String path, Map<String, String> params )
@@ -571,7 +571,7 @@ public class User extends Resource {
      *      reached the RestAuth server).
      * @throws InternalServerError If the RestAuth server suffered from an
      *      internal error.
-     * @inherit
+     * @inheritDoc
      */
     @Override
     public RestAuthResponse delete( String path )
