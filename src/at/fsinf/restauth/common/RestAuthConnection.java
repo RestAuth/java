@@ -2,6 +2,7 @@ package at.fsinf.restauth.common;
 
 import at.fsinf.restauth.errors.BadRequest;
 import at.fsinf.restauth.errors.InternalServerError;
+import at.fsinf.restauth.errors.InvalidCredentials;
 import at.fsinf.restauth.errors.NotAcceptable;
 import at.fsinf.restauth.errors.RequestFailed;
 import at.fsinf.restauth.errors.Unauthorized;
@@ -14,6 +15,8 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.EncoderException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -23,7 +26,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import sun.misc.BASE64Encoder;
 /**
  * An instance of this class represents a connection to a RestAuth service. It
  * is used to provide basic HTTP messaging needs.
@@ -51,7 +53,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      *      not contain a valid URL.
      */
     public RestAuthConnection( String host, String user, String passwd )
-            throws URISyntaxException {
+            throws URISyntaxException, InvalidCredentials {
         this( new URI(host), user, passwd, new JsonHandler() );
     }
     /**
@@ -63,7 +65,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param user The user used to authenticate against the RestAuth server.
      * @param passwd The password used to authenticate against the RestAuth server.
      */
-    public RestAuthConnection( URI host, String user, String passwd ) {
+    public RestAuthConnection( URI host, String user, String passwd ) throws InvalidCredentials {
         this( host, user, passwd, new JsonHandler() );
     }
     
@@ -77,7 +79,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param handler The content handler to use.
      */
     public RestAuthConnection( String host, String user, String passwd, ContentHandler handler )
-            throws URISyntaxException {
+            throws URISyntaxException, InvalidCredentials {
         this( new URI( host ), user, passwd, handler );
     }
 
@@ -90,9 +92,9 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param passwd The password used to authenticate against the RestAuth server.
      * @param handler The content handler to use.
      */
-    public RestAuthConnection( URI host, String user, String passwd, ContentHandler handler ) {
+    public RestAuthConnection( URI host, String user, String passwd, ContentHandler handler ) throws InvalidCredentials {
         this.handler = handler;
-        this.setCredentials(user, passwd);
+        this.setCredentials(user, passwd);        
         this.host = host;
     }
 
@@ -120,10 +122,13 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @param user The new username to use.
      * @param passwd The new password to use.
      */
-    public final void setCredentials( String user, String passwd ) {
+    public final void setCredentials( String user, String passwd ) throws InvalidCredentials {
+        if ( user.contains(":") ) {
+            throw new InvalidCredentials( "user must not contain ':'.");
+        }
         String raw_header = user + ":" + passwd;
-        BASE64Encoder enc = new BASE64Encoder();
-        this.authHeader = enc.encode( raw_header.getBytes() );
+        this.authHeader = new String( Base64.encodeBase64( raw_header.getBytes() ) );
+
     }
 
     /**
