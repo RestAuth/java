@@ -131,6 +131,40 @@ public class User extends Resource {
     }
     
     /**
+     * Factory method that creates a new user without a password.
+     *
+     * @param connection The connection to use when making requests.
+     * @param name The name of the user.
+     * @return The newly created user.
+     * @throws UserExists If the user already exists.
+     * @throws PreconditionFailed If the username or password are not acceptable
+     *      to the RestAuth server.
+     * @throws Unauthorized If the authentication credentials are wrong.
+     * @throws InternalServerError If the RestAuth server suffered from an
+     *      internal error.
+     * @throws RequestFailed If making the request failed (that is, never
+     *      reached the RestAuth server).
+     */
+    public static User create( RestAuthConnection connection, String name )
+            throws UserExists, PreconditionFailed, Unauthorized, InternalServerError, RequestFailed {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put( "user", name );
+
+        RestAuthResponse response = connection.post( User.prefix, params );
+        int respCode = response.getStatusCode();
+
+        if ( respCode == HttpStatus.SC_CREATED ) {
+            return new User( connection, name );
+        } else if ( respCode == HttpStatus.SC_CONFLICT ) {
+            throw new UserExists( response );
+        } else if ( respCode == HttpStatus.SC_PRECONDITION_FAILED ) {
+            throw new PreconditionFailed( response );
+        } else {
+            throw new UnknownStatus( response );
+        }
+    }
+    
+    /**
      * Set the password of this user.
      *
      * @param newPassword The new password.
@@ -145,6 +179,34 @@ public class User extends Resource {
             throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put( "password", newPassword );
+
+        String path = String.format( "%s/", this.name );
+        RestAuthResponse response = this.put( path, params );
+        int respCode = response.getStatusCode();
+
+        if ( respCode == HttpStatus.SC_NO_CONTENT ) {
+            return;
+        } else if ( respCode == HttpStatus.SC_NOT_FOUND ) {
+            throw new ResourceNotFound( response );
+        } else {
+            throw new UnknownStatus( response );
+        }
+    }
+
+    /**
+     * Disable the user. After this request, any password verification request
+     * returns false.
+     *
+     * @throws Unauthorized If the authentication credentials are wrong.
+     * @throws ResourceNotFound If the user in question does not exist.
+     * @throws InternalServerError If the RestAuth server suffered from an
+     *      internal error.
+     * @throws RequestFailed If making the request failed (that is, never
+     *      reached the RestAuth server).
+     */
+    public void disableUser()
+            throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
+        HashMap<String, String> params = new HashMap<String, String>();
 
         String path = String.format( "%s/", this.name );
         RestAuthResponse response = this.put( path, params );
