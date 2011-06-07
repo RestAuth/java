@@ -32,9 +32,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
  * @author Mathias Ertl
  */
 public class RestAuthConnection extends DefaultHttpClient {
-    /**
-     * @todo make this private
-     */
     public ContentHandler handler;
 
     private URI host;

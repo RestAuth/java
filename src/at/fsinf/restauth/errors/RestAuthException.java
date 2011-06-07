@@ -22,8 +22,6 @@ public abstract class RestAuthException extends Exception {
 
     /**
      * Default no-arg constructor.
-     *
-     * @todo: Try getting around having to implement this constructor.
      */
     public RestAuthException() {}
 

@@ -12,9 +12,6 @@ public class RequestFailed extends RestAuthException {
     private HttpRequest request;
     private Exception cause;
 
-    /**
-     * @todo: get around having to implement this constructor.
-     */
     public RequestFailed() {}
 
     /**

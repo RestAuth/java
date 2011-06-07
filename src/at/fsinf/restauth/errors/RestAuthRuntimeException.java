@@ -16,9 +16,6 @@ import at.fsinf.restauth.common.RestAuthResponse;
 public abstract class RestAuthRuntimeException extends RuntimeException {
     RestAuthResponse response;
 
-    /**
-     * @todo try getting around having to implement this constructor.
-     */
     public RestAuthRuntimeException() {};
     public RestAuthRuntimeException( RestAuthResponse response, int expectedCode ) {
         this.response = response;

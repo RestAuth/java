@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -40,12 +35,6 @@ public class JsonHandlerTests {
     @After
     public void tearDown() {
     }
-
-    // TODO add test methods here.
-    // The methods must be annotated with annotation @Test. For example:
-    //
-    // @Test
-    // public void hello() {}
 
     @Test
     public void unmarshal_string() {
