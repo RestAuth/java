@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 
+import at.fsinf.restauth.errors.InvalidCredentials;
 import java.util.HashMap;
 import at.fsinf.restauth.errors.PreconditionFailed;
 import at.fsinf.restauth.errors.ResourceNotFound;
@@ -26,8 +27,7 @@ import static org.junit.Assert.*;
  * @author mati
  */
 public class UserTests {
-    RestAuthConnection conn = new RestAuthConnection( "http://localhost:8000",
-            "vowi", "vowi");
+    RestAuthConnection conn;
     String username = "user \u611b";
     String password = "password \u611b";
     String prop_1_key = "key \u609b";
@@ -45,7 +45,10 @@ public class UserTests {
     }
 
     @Before
-    public void setUp() throws RestAuthException {
+    public void setUp() throws RestAuthException, InvalidCredentials, URISyntaxException {
+        this.conn = new RestAuthConnection( "http://[::1]:8000",
+                "vowi", "vowi");
+
         List<User> users = User.getAll( this.conn );
         assertEquals( 0, users.size() );
     }
@@ -99,6 +102,21 @@ public class UserTests {
     }
 
     @Test
+    public void createUserWithoutPassword() throws RestAuthException {
+        User user = User.create( this.conn, this.username );
+
+        // assert that user exists
+        User user_get = User.get( this.conn, this.username );
+        List<User> users = User.getAll( this.conn );
+        assertEquals( user, user_get );
+        assertEquals( 1, users.size() );
+        assertEquals( user, users.get(0) );
+
+        assertFalse( user.verifyPassword( "whatever" ) );
+        assertFalse( user.verifyPassword( "" ) );
+    }
+
+    @Test
     public void testVerifyPassword() throws RestAuthException {
         User user = User.create( this.conn, this.username, this.password );
 
@@ -116,6 +134,16 @@ public class UserTests {
         user.setPassword( newpassword );
         assertTrue( user.verifyPassword( newpassword ) );
         assertFalse( user.verifyPassword( this.password ) );
+    }
+
+    @Test
+    public void disableUser() throws RestAuthException {
+        User user = User.create( this.conn, this.username, this.password );
+        assertTrue( user.verifyPassword( this.password ) );
+
+        user.disableUser();
+        assertFalse( user.verifyPassword( this.password ) );
+        assertFalse( user.verifyPassword( "" ) );
     }
 
     @Test

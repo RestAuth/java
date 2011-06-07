@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 
+import at.fsinf.restauth.errors.InvalidCredentials;
 import at.fsinf.restauth.errors.ResourceNotFound;
 import at.fsinf.restauth.errors.PreconditionFailed;
 import at.fsinf.restauth.resources.Group;
@@ -35,7 +36,7 @@ public class GroupTests {
     String user_4 = "user \u704a";
 
 
-    public GroupTests() throws URISyntaxException {
+    public GroupTests() throws URISyntaxException, InvalidCredentials {
         this.conn = new RestAuthConnection( "http://localhost:8000",
             "vowi", "vowi");
     }
