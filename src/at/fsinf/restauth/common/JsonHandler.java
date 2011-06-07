@@ -1,5 +1,6 @@
 package at.fsinf.restauth.common;
 
+import at.fsinf.restauth.errors.UnmarshalException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -56,7 +57,11 @@ public class JsonHandler extends ContentHandler{
      */
     @Override
     public String unmarshal_string(String raw) {
-        return this.handler.fromJson(raw, String.class );
+        List<String> strList = this.handler.fromJson( raw, this.listType );
+        if ( strList.isEmpty() ) {
+            throw new UnmarshalException( "Unable to parse string", raw );
+        }
+        return strList.get(0);
     }
 
     /**
