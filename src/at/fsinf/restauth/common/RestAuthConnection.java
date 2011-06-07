@@ -127,8 +127,8 @@ public class RestAuthConnection extends DefaultHttpClient {
             throw new InvalidCredentials( "user must not contain ':'.");
         }
         String raw_header = user + ":" + passwd;
-        this.authHeader = new String( Base64.encodeBase64( raw_header.getBytes() ) );
-
+        this.authHeader = "Basic " +
+                new String( Base64.encodeBase64( raw_header.getBytes() ) );
     }
 
     /**
@@ -195,7 +195,7 @@ public class RestAuthConnection extends DefaultHttpClient {
     public RestAuthResponse send(HttpRequestBase request, String path, String query )
             throws Unauthorized, RequestFailed, InternalServerError {
         request.addHeader( "Accept", this.handler.getMimeType() );
-        request.addHeader( "Authorization", "Basic " + this.authHeader );
+        request.addHeader( "Authorization", this.authHeader );
 
 
         RestAuthResponse response;
