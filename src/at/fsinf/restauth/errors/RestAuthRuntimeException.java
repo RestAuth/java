@@ -17,6 +17,9 @@ public abstract class RestAuthRuntimeException extends RuntimeException {
     RestAuthResponse response;
 
     public RestAuthRuntimeException() {};
+    public RestAuthRuntimeException(String msg) {
+        super(msg);
+    }
     public RestAuthRuntimeException( RestAuthResponse response, int expectedCode ) {
         this.response = response;
         if ( expectedCode != response.getStatusCode() )
