@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.EncoderException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -196,7 +195,6 @@ public class RestAuthConnection extends DefaultHttpClient {
             throws Unauthorized, RequestFailed, InternalServerError {
         request.addHeader( "Accept", this.handler.getMimeType() );
         request.addHeader( "Authorization", this.authHeader );
-
 
         RestAuthResponse response;
         try {
