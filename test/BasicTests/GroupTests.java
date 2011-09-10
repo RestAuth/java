@@ -39,7 +39,7 @@ public class GroupTests {
 
 
     public GroupTests() throws URISyntaxException, InvalidCredentials {
-        this.conn = new RestAuthConnection( "http://localhost:8000",
+        this.conn = new RestAuthConnection( "http://[::1]:8000",
             "vowi", "vowi");
     }
 

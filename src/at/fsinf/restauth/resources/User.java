@@ -95,6 +95,34 @@ public class User extends Resource {
         }
     }
 
+    public static User create( RestAuthConnection connection, String name,
+            String password, HashMap<String, String> properties) 
+            throws Unauthorized, InternalServerError, RequestFailed, UserExists,
+                PreconditionFailed
+    {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put( "user", name );
+        if ( password != null ) {
+            params.put( "password", password );
+        }
+        if ( properties != null ) {
+            params.put( "properties", properties );
+        }
+
+        RestAuthResponse response = connection.post( User.prefix, params );
+        int respCode = response.getStatusCode();
+
+        if ( respCode == HttpStatus.SC_CREATED ) {
+            return new User( connection, name );
+        } else if ( respCode == HttpStatus.SC_CONFLICT ) {
+            throw new UserExists( response );
+        } else if ( respCode == HttpStatus.SC_PRECONDITION_FAILED ) {
+            throw new PreconditionFailed( response );
+        } else {
+            throw new UnknownStatus( response );
+        }
+    }
+
     /**
      * Factory method that creates a new user.
      *
@@ -111,23 +139,12 @@ public class User extends Resource {
      * @throws RequestFailed If making the request failed (that is, never
      *      reached the RestAuth server).
      */
-    public static User create( RestAuthConnection connection, String name, String passwd )
-            throws UserExists, PreconditionFailed, Unauthorized, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put( "user", name );
-        params.put( "password", passwd );
-        RestAuthResponse response = connection.post( User.prefix, params );
-        int respCode = response.getStatusCode();
-
-        if ( respCode == HttpStatus.SC_CREATED ) {
-            return new User( connection, name );
-        } else if ( respCode == HttpStatus.SC_CONFLICT ) {
-            throw new UserExists( response );
-        } else if ( respCode == HttpStatus.SC_PRECONDITION_FAILED ) {
-            throw new PreconditionFailed( response );
-        } else {
-            throw new UnknownStatus( response );
-        }
+    public static User create( RestAuthConnection connection, String name,
+            String passwd )
+            throws UserExists, PreconditionFailed, Unauthorized, RequestFailed,
+                InternalServerError
+    {
+        return User.create(connection, name, passwd, null);
     }
     
     /**
@@ -146,22 +163,10 @@ public class User extends Resource {
      *      reached the RestAuth server).
      */
     public static User create( RestAuthConnection connection, String name )
-            throws UserExists, PreconditionFailed, Unauthorized, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put( "user", name );
-
-        RestAuthResponse response = connection.post( User.prefix, params );
-        int respCode = response.getStatusCode();
-
-        if ( respCode == HttpStatus.SC_CREATED ) {
-            return new User( connection, name );
-        } else if ( respCode == HttpStatus.SC_CONFLICT ) {
-            throw new UserExists( response );
-        } else if ( respCode == HttpStatus.SC_PRECONDITION_FAILED ) {
-            throw new PreconditionFailed( response );
-        } else {
-            throw new UnknownStatus( response );
-        }
+            throws UserExists, PreconditionFailed, Unauthorized, RequestFailed,
+                InternalServerError
+    {
+        return User.create(connection, name, null, null);
     }
     
     /**
@@ -176,8 +181,10 @@ public class User extends Resource {
      *      reached the RestAuth server).
      */
     public void setPassword( String newPassword )
-            throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
+            throws Unauthorized, ResourceNotFound, RequestFailed,
+                InternalServerError
+    {
+        HashMap<String, Object> params = new HashMap<String, Object>();
         params.put( "password", newPassword );
 
         String path = String.format( "%s/", this.name );
@@ -206,7 +213,7 @@ public class User extends Resource {
      */
     public void disableUser()
             throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
 
         String path = String.format( "%s/", this.name );
         RestAuthResponse response = this.put( path, params );
@@ -237,7 +244,7 @@ public class User extends Resource {
      */
     public boolean verifyPassword( String password )
             throws Unauthorized, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         params.put( "password", password );
 
         String path = String.format( "%s/", this.name );
@@ -296,7 +303,7 @@ public class User extends Resource {
      */
     public void createProperty( String propName, String value )
             throws PropertyExists, Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         params.put( "prop", propName );
         params.put( "value", value );
 
@@ -331,7 +338,7 @@ public class User extends Resource {
      */
     public String setProperty( String propName, String value )
             throws Unauthorized, ResourceNotFound, InternalServerError, RequestFailed {
-        HashMap<String, String> params = new HashMap<String, String>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         params.put( "value", value );
 
         String path = String.format( "%s/props/%s/", this.name, propName );
@@ -607,7 +614,7 @@ public class User extends Resource {
      * @inheritDoc
      */
     @Override
-    protected RestAuthResponse post(String path, Map<String, String> params )
+    protected RestAuthResponse post(String path, Map<String, Object> params )
             throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.post( User.prefix + path, params );
     }
@@ -621,7 +628,7 @@ public class User extends Resource {
      * @inheritDoc
      */
     @Override
-    protected RestAuthResponse put(String path, Map<String, String> params )
+    protected RestAuthResponse put(String path, Map<String, Object> params )
             throws Unauthorized, InternalServerError, RequestFailed {
         return this.conn.put( User.prefix + path, params );
     }

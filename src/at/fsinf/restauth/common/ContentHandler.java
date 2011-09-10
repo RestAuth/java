@@ -34,7 +34,7 @@ public abstract class ContentHandler {
      * @param map The map to unmarshal.
      * @return The raw string representation of a dictionary.
      */
-    public abstract String marshal_dictionary( Map<String, String> map );
+    public abstract String marshal_dictionary( Map<String, Object> map );
 
     /**
      * This method should unmarshal a dictionary received by the RestAuth

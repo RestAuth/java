@@ -34,7 +34,7 @@ public class JsonHandler extends ContentHandler{
      * @return The JSON string representation of the map.
      */
     @Override
-    public String marshal_dictionary( Map<String, String> map ) {
+    public String marshal_dictionary( Map<String, Object> map ) {
         return this.handler.toJson(map);
     }
 

@@ -274,7 +274,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @see <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
      *      Dictionary in the RestAuth specification</a>
      */
-    public RestAuthResponse post( String path, Map<String, String> params )
+    public RestAuthResponse post( String path, Map<String, Object> params )
             throws Unauthorized, InternalServerError, RequestFailed {
         HttpPost method = new HttpPost();
         String body = this.handler.marshal_dictionary( params );
@@ -308,7 +308,7 @@ public class RestAuthConnection extends DefaultHttpClient {
      * @see <a href="http://fs.fsinf.at/wiki/RestAuth/Specification#Dictionary">
      *      Dictionary in the RestAuth specification</a>
      */
-    public RestAuthResponse put( String path, Map<String, String> params )
+    public RestAuthResponse put( String path, Map<String, Object> params )
             throws Unauthorized, InternalServerError, RequestFailed {
         HttpPut method = new HttpPut();
         String body = this.handler.marshal_dictionary( params );

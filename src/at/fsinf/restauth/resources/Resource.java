@@ -68,7 +68,7 @@ public abstract class Resource {
      * @throws RestAuthException
      */
     protected abstract RestAuthResponse 
-            post( String path, Map<String, String> params )
+            post( String path, Map<String, Object> params )
             throws RestAuthException;
 
     /**
@@ -83,7 +83,7 @@ public abstract class Resource {
      * @throws RestAuthException
      */
     protected abstract RestAuthResponse 
-            put( String path, Map<String, String> params )
+            put( String path, Map<String, Object> params )
             throws RestAuthException;
 
     /**

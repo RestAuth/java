@@ -70,7 +70,7 @@ public class JsonHandlerTests {
 
     @Test
     public void marshal_map() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put( "foo", "bar" );
         map.put( "key space", "whatever" );
         String unmarshalled = this.handler.marshal_dictionary( map );
